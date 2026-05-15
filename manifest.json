@@ -1,0 +1,44 @@
+{
+  "manifest_version": 3,
+  "name": "X Media Downloader",
+  "version": "0.1.0",
+  "description": "在 X/Twitter 推文下插入图片和视频下载按钮。",
+  "permissions": ["downloads", "storage"],
+  "host_permissions": [
+    "https://x.com/*",
+    "https://twitter.com/*",
+    "https://*.twimg.com/*",
+    "https://video.twimg.com/*"
+  ],
+  "background": {
+    "service_worker": "background/service-worker.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://x.com/*",
+        "https://twitter.com/*"
+      ],
+      "js": [
+        "content/shared.js",
+        "content/dom-utils.js",
+        "content/content.js"
+      ],
+      "css": ["content/styles.css"],
+      "run_at": "document_start"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "content/shared.js",
+        "content/media-extractor.js",
+        "content/inject.js"
+      ],
+      "matches": [
+        "https://x.com/*",
+        "https://twitter.com/*"
+      ]
+    }
+  ]
+}

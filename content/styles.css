@@ -1,0 +1,118 @@
+.xmd-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.xmd-actions--header {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 0;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+
+.xmd-actions--header .xmd-btn {
+  padding: 0;
+}
+
+.xmd-actions--header .xmd-status {
+  display: none;
+}
+
+.xmd-btn {
+  border: 1px solid rgba(83, 100, 113, 0.45);
+  background: rgba(15, 20, 25, 0.08);
+  color: rgb(15, 20, 25);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease, opacity 120ms ease;
+}
+
+.xmd-btn:hover:not(:disabled) {
+  background: rgba(29, 155, 240, 0.12);
+  border-color: rgba(29, 155, 240, 0.55);
+}
+
+.xmd-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.xmd-btn--icon {
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  min-height: 34px;
+  border: none;
+  background: transparent;
+  color: rgb(83, 100, 113);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.xmd-btn--icon:hover:not(:disabled) {
+  background: rgba(29, 155, 240, 0.12);
+  border-color: transparent;
+  color: rgb(29, 155, 240);
+}
+
+.xmd-btn--icon[data-busy="1"] {
+  color: rgb(29, 155, 240);
+}
+
+.xmd-btn--icon[data-ready="0"] {
+  opacity: 0.45;
+}
+
+.xmd-icon {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+
+.xmd-status {
+  font-size: 12px;
+  color: rgb(83, 100, 113);
+}
+
+.xmd-status[data-busy="1"] {
+  color: rgb(29, 155, 240);
+}
+
+.xmd-status[data-error="1"] {
+  color: rgb(244, 33, 46);
+}
+
+html[style*="color-scheme: dark"] .xmd-btn,
+html[data-color-mode="dark"] .xmd-btn,
+body[style*="background-color: rgb(0, 0, 0)"] .xmd-btn {
+  color: rgb(231, 233, 234);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+html[style*="color-scheme: dark"] .xmd-btn--icon,
+html[data-color-mode="dark"] .xmd-btn--icon,
+body[style*="background-color: rgb(0, 0, 0)"] .xmd-btn--icon {
+  color: rgb(113, 118, 123);
+  background: transparent;
+}
+
+html[style*="color-scheme: dark"] .xmd-btn--icon:hover:not(:disabled),
+html[data-color-mode="dark"] .xmd-btn--icon:hover:not(:disabled),
+body[style*="background-color: rgb(0, 0, 0)"] .xmd-btn--icon:hover:not(:disabled) {
+  color: rgb(29, 155, 240);
+}
+
+html[style*="color-scheme: dark"] .xmd-status,
+html[data-color-mode="dark"] .xmd-status,
+body[style*="background-color: rgb(0, 0, 0)"] .xmd-status {
+  color: rgb(113, 118, 123);
+}
