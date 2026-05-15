@@ -12,6 +12,7 @@
     findTweetArticles,
     extractTweetIdFromArticle,
     extractAuthorFromArticle,
+    extractTweetTextFromArticle = () => '',
     ensureButtonMount,
     collectDomImages,
   } = domUtils;
@@ -299,10 +300,12 @@
   async function downloadImages(article, images) {
     const tweetId = extractTweetIdFromArticle(article);
     const author = extractAuthorFromArticle(article) || mediaStore.get(tweetId)?.author || 'unknown';
+    const postTitle = extractTweetTextFromArticle(article);
 
     for (const [index, image] of images.entries()) {
       const filename = buildDownloadFilename({
         author,
+        postTitle,
         tweetId: tweetId || 'tweet',
         kind: 'image',
         index: image.index ?? index,
@@ -324,10 +327,12 @@
   async function downloadVideos(article, videos) {
     const tweetId = extractTweetIdFromArticle(article);
     const author = extractAuthorFromArticle(article) || mediaStore.get(tweetId)?.author || 'unknown';
+    const postTitle = extractTweetTextFromArticle(article);
 
     for (const [index, video] of videos.entries()) {
       const filename = buildDownloadFilename({
         author,
+        postTitle,
         tweetId: tweetId || 'tweet',
         kind: 'video',
         index: video.index ?? index,

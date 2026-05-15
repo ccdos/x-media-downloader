@@ -62,6 +62,22 @@
     return anchor ? extractAuthorFromStatusUrl(anchor.href || anchor.getAttribute('href') || '') : null;
   }
 
+  function extractTweetTextFromArticle(article) {
+    if (!article || typeof article.querySelectorAll !== 'function') {
+      return '';
+    }
+
+    const primary = article.querySelector('[data-testid="tweetText"]');
+    if (primary) {
+      return normalizeVisibleText(primary.textContent || '');
+    }
+
+    const textLikeNodes = Array.from(article.querySelectorAll('[lang]'))
+      .filter((node) => !node.closest('[data-testid="User-Name"]'));
+    const combined = textLikeNodes.map((node) => normalizeVisibleText(node.textContent || '')).filter(Boolean).join(' ');
+    return normalizeVisibleText(combined);
+  }
+
   function getPreferredStatusAnchor(article) {
     const anchors = getStatusAnchors(article);
     if (!anchors.length) {
@@ -223,6 +239,12 @@
     return Boolean(node) && node.nodeType === 1;
   }
 
+  function normalizeVisibleText(value) {
+    return String(value || '')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
   function getActionBar(article) {
     if (!article || typeof article.querySelectorAll !== 'function') {
       return null;
@@ -324,6 +346,7 @@
     findTweetArticles,
     extractTweetIdFromArticle,
     extractAuthorFromArticle,
+    extractTweetTextFromArticle,
     findHeaderActionBar,
     getActionBar,
     ensureButtonMount,

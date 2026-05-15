@@ -56,6 +56,20 @@ test('buildDownloadFilename generates stable readable names', () => {
   assert.equal(filename, 'x_hello-world_192837465_image_1.png');
 });
 
+
+test('buildDownloadFilename prefers sanitized post title when provided', () => {
+  const filename = buildDownloadFilename({
+    author: 'hello/world',
+    tweetId: '192837465',
+    kind: 'video',
+    index: 1,
+    url: 'https://video.twimg.com/tweet/demo.mp4',
+    postTitle: '把4台 Mac mini 叠起来，用 CAD Skill 做 4 层竖向框架',
+  });
+
+  assert.equal(filename, 'x_hello-world_把4台-mac-mini-叠起来-用-cad-skill-做-4-层竖向框架_192837465_video_2.mp4');
+});
+
 test('sanitizeFileComponent strips invalid filename characters', () => {
   assert.equal(sanitizeFileComponent('a:b*c<d>e|f?g"h/i\\j'), 'a-b-c-d-e-f-g-h-i-j');
 });

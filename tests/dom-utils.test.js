@@ -4,12 +4,14 @@ const { JSDOM } = require('jsdom');
 const vm = require('node:vm');
 const fs = require('node:fs');
 const path = require('node:path');
+const shared = require('../content/shared.js');
 
 const {
   extractTweetIdFromUrl,
   extractAuthorFromStatusUrl,
   findHeaderActionBar,
   ensureButtonMount,
+  extractTweetTextFromArticle,
 } = require('../content/dom-utils.js');
 
 const contentScriptSource = fs.readFileSync(
@@ -21,8 +23,7 @@ function loadContentTestApi(overrides = {}) {
   const bootstrapWindow = overrides.window;
   if (bootstrapWindow) {
     bootstrapWindow.XMDShared = overrides.xmdShared || bootstrapWindow.XMDShared || {
-      toOriginalImageUrl: (url) => url,
-      buildDownloadFilename: ({ kind = 'media', index = 0 }) => `${kind}-${index}`,
+      ...shared,
     };
     bootstrapWindow.XMDDomUtils = overrides.xmdDomUtils || bootstrapWindow.XMDDomUtils || {
       findTweetArticles: () => [],
@@ -250,6 +251,64 @@ test('ensureButtonMount moves an existing bottom mount to header before grok whe
   assert.equal(movedMount.nextElementSibling, grokWrap);
   assert.equal(grokWrap.nextElementSibling, caretWrap);
   assert.equal(movedMount.className, 'xmd-actions xmd-actions--header');
+});
+
+
+test('extractTweetTextFromArticle returns normalized tweet text for filename generation', () => {
+  const dom = new JSDOM(`
+    <article>
+      <div data-testid="tweetText">
+        把4台 Mac mini 叠起来，<a href="https://x.com">链接</a><span>用 CAD Skill 做 4 层竖向框架</span>
+      </div>
+    </article>
+  `, { url: 'https://x.com/demo/status/1' });
+
+  const article = dom.window.document.querySelector('article');
+  assert.equal(extractTweetTextFromArticle(article), '把4台 Mac mini 叠起来，链接用 CAD Skill 做 4 层竖向框架');
+});
+
+test('downloadImages uses normalized tweet text in generated filenames', async () => {
+  const dom = new JSDOM('<!doctype html><html><body><article><div data-testid="tweetText">把4台 Mac mini 叠起来，用 CAD Skill 做 4 层竖向框架</div></article></body></html>', { url: 'https://x.com/demo/status/1' });
+  const article = dom.window.document.querySelector('article');
+  const mount = dom.window.document.createElement('div');
+  mount.className = 'xmd-actions xmd-actions--header';
+  article.appendChild(mount);
+
+  const filenames = [];
+  const api = loadContentTestApi({
+    window: dom.window,
+    document: dom.window.document,
+    MutationObserver: class {
+      observe() {}
+      disconnect() {}
+    },
+    chrome: {
+      runtime: {
+        getURL: () => '',
+        lastError: null,
+        sendMessage: (message, callback) => {
+          filenames.push(message.payload.filename);
+          callback({ ok: true });
+        },
+      },
+    },
+    xmdDomUtils: {
+      findTweetArticles: () => [article],
+      extractTweetIdFromArticle: () => '1',
+      extractAuthorFromArticle: () => 'demo_user',
+      extractTweetTextFromArticle,
+      ensureButtonMount: () => mount,
+      collectDomImages: () => [{ rawUrl: 'https://pbs.twimg.com/media/demo?format=jpg&name=small' }],
+    },
+  });
+
+  api.mountTweetActions(article);
+  const button = mount.querySelector('[data-xmd-kind="download"]');
+  button.dispatchEvent(new dom.window.MouseEvent('click', { bubbles: true, cancelable: true }));
+  await new Promise((resolve) => setTimeout(resolve, 0));
+
+  assert.equal(filenames.length, 1);
+  assert.equal(filenames[0], 'x_demo_user_把4台-mac-mini-叠起来-用-cad-skill-做-4-层竖向框架_1_image_1.jpg');
 });
 
 test('createButton builds a single icon-style unified download control', () => {
