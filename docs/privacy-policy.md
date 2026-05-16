@@ -32,4 +32,4 @@ The extension does not:
 
 ## Contact
 For support or privacy questions, open an issue in the GitHub repository:
-https://github.com/ccdos/x-media-downloader
+https://www.ccdos.cn/x-media-downloader/support.html

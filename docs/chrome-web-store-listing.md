@@ -31,10 +31,10 @@ Notes:
 Productivity
 
 ## Support URL
-https://github.com/ccdos/x-media-downloader
+https://www.ccdos.cn/x-media-downloader/support.html
 
 ## Homepage URL
 https://github.com/ccdos/x-media-downloader
 
 ## Privacy policy URL
-Publish docs/privacy-policy.md (or the same text) to a public page, then paste that public URL here.
+https://www.ccdos.cn/x-media-downloader/privacy-policy.html
