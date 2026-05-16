@@ -1,0 +1,104 @@
+:root {
+  color-scheme: dark;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #0f1419;
+  color: #e7e9ea;
+}
+
+.page {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 32px 20px 48px;
+}
+
+h1, h2 {
+  margin: 0 0 16px;
+}
+
+.intro {
+  color: #9aa4af;
+  margin-bottom: 20px;
+}
+
+.panel {
+  background: #161c22;
+  border: 1px solid #253341;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.field {
+  display: block;
+  margin-bottom: 16px;
+}
+
+.field span {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.field input {
+  width: 100%;
+  box-sizing: border-box;
+  background: #0f1419;
+  border: 1px solid #33404d;
+  border-radius: 10px;
+  color: #e7e9ea;
+  padding: 12px 14px;
+  font-size: 14px;
+}
+
+.field small,
+.help li,
+.help td,
+.help th {
+  color: #9aa4af;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+button {
+  border: 0;
+  border-radius: 999px;
+  padding: 10px 16px;
+  background: #1d9bf0;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+button.secondary {
+  background: #253341;
+}
+
+.status {
+  min-height: 20px;
+  color: #8fe388;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  border-top: 1px solid #253341;
+  padding: 10px 8px;
+  text-align: left;
+  vertical-align: top;
+}
+
+code, td:first-child {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}

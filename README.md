@@ -16,6 +16,9 @@
 - content/inject.js
 - content/content.js
 - content/styles.css
+- options/options.html
+- options/options.css
+- options/options.js
 - tests/*.test.js
 
 安装：
@@ -28,7 +31,8 @@
 1. 打开任意 x.com 或 twitter.com 推文详情页或时间线
 2. 等页面加载后，推文顶部右侧操作区会出现单个下载按钮
 3. 点击一次会下载当前推文的全部可用媒体（图片 + 视频）
-4. 文件名会优先基于推文正文生成短标题；若取不到正文，则回退到 author + tweetId 命名
+4. 文件名默认优先使用正文短标题，不默认包含 {author}；若取不到正文，则回退到 tweetId + kind + index 命名
+5. 可在扩展详情页的“扩展程序选项”里自定义优先模板 / 回退模板，并查看全部可用字段说明
 
 测试：
 - 在项目目录执行：npm test
@@ -39,7 +43,6 @@
 - 某些受限媒体若页面未实际返回媒体元数据，按钮不会强行伪造下载
 
 后续建议：
-- 增加 popup/options，让用户可选 saveAs、文件名规则、画质偏好
-- 增加 popup/options，让用户可切换“正文标题命名 / author+tweetId 命名”
+- 增加 popup/options，让用户可选 saveAs、文件名模板、画质偏好
 - 增加对引用推文 / 转推媒体的单独区分
 - 为按钮挂载增加更稳的 action bar 识别策略

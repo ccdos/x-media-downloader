@@ -267,6 +267,61 @@ test('extractTweetTextFromArticle returns normalized tweet text for filename gen
   assert.equal(extractTweetTextFromArticle(article), '把4台 Mac mini 叠起来，链接用 CAD Skill 做 4 层竖向框架');
 });
 
+
+test('downloadImages falls back to default template without author when tweet text is missing', async () => {
+  const dom = new JSDOM('<!doctype html><html><body><article></article></body></html>', { url: 'https://x.com/demo/status/1' });
+  const article = dom.window.document.querySelector('article');
+  const mount = dom.window.document.createElement('div');
+  mount.className = 'xmd-actions xmd-actions--header';
+  article.appendChild(mount);
+
+  const filenames = [];
+  const storageValues = {
+    primaryTemplate: 'x_{postTitle}_{tweetId}_{kind}_{index}.{ext}',
+    fallbackTemplate: 'x_{tweetId}_{kind}_{index}.{ext}',
+  };
+
+  const api = loadContentTestApi({
+    window: dom.window,
+    document: dom.window.document,
+    MutationObserver: class {
+      observe() {}
+      disconnect() {}
+    },
+    chrome: {
+      runtime: {
+        getURL: () => '',
+        lastError: null,
+        sendMessage: (message, callback) => {
+          filenames.push(message.payload.filename);
+          callback({ ok: true });
+        },
+      },
+      storage: {
+        local: {
+          get: (_keys, callback) => callback(storageValues),
+        },
+      },
+    },
+    xmdDomUtils: {
+      findTweetArticles: () => [article],
+      extractTweetIdFromArticle: () => '1',
+      extractAuthorFromArticle: () => 'demo_user',
+      extractTweetTextFromArticle: () => '',
+      ensureButtonMount: () => mount,
+      collectDomImages: () => [{ rawUrl: 'https://pbs.twimg.com/media/demo?format=jpg&name=small' }],
+    },
+  });
+
+  await api.loadSettings();
+  api.mountTweetActions(article);
+  const button = mount.querySelector('[data-xmd-kind="download"]');
+  button.dispatchEvent(new dom.window.MouseEvent('click', { bubbles: true, cancelable: true }));
+  await new Promise((resolve) => setTimeout(resolve, 0));
+
+  assert.equal(filenames[0], 'x_1_image_1.jpg');
+});
+
 test('downloadImages uses normalized tweet text in generated filenames', async () => {
   const dom = new JSDOM('<!doctype html><html><body><article><div data-testid="tweetText">把4台 Mac mini 叠起来，用 CAD Skill 做 4 层竖向框架</div></article></body></html>', { url: 'https://x.com/demo/status/1' });
   const article = dom.window.document.querySelector('article');
@@ -308,7 +363,7 @@ test('downloadImages uses normalized tweet text in generated filenames', async (
   await new Promise((resolve) => setTimeout(resolve, 0));
 
   assert.equal(filenames.length, 1);
-  assert.equal(filenames[0], 'x_demo_user_把4台-mac-mini-叠起来-用-cad-skill-做-4-层竖向框架_1_image_1.jpg');
+  assert.equal(filenames[0], 'x_把4台-mac-mini-叠起来-用-cad-skill-做-4-层竖向框架_1_image_1.jpg');
 });
 
 test('createButton builds a single icon-style unified download control', () => {
@@ -367,6 +422,7 @@ test('mountTweetActions ignores a second click while a download is already in fl
     },
   });
 
+  await api.loadSettings();
   api.mountTweetActions(article);
   const button = mount.querySelector('[data-xmd-kind="download"]');
 

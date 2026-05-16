@@ -1,11 +1,16 @@
 (function initShared(globalScope) {
   const TWIMG_MEDIA_HOST = 'pbs.twimg.com';
+  const DEFAULT_FILENAME_TEMPLATES = Object.freeze({
+    primaryTemplate: 'x_{postTitle}_{tweetId}_{kind}_{index}.{ext}',
+    fallbackTemplate: 'x_{tweetId}_{kind}_{index}.{ext}',
+  });
 
   function sanitizeFileComponent(value) {
     return String(value || 'unknown')
       .normalize('NFKC')
       .trim()
       .replace(/[\\/:*?"<>|]+/g, '-')
+      .replace(/\\+/g, '-')
       .replace(/\s+/g, '-')
       .replace(/-+/g, '-')
       .replace(/^-|-$/g, '')
@@ -37,7 +42,7 @@
       if (match) {
         return normalizeExtension(match[1]);
       }
-    } catch (error) {
+    } catch (_error) {
       return fallback;
     }
 
@@ -60,7 +65,7 @@
 
       url.searchParams.set('name', 'orig');
       return url.toString();
-    } catch (error) {
+    } catch (_error) {
       return rawUrl;
     }
   }
@@ -77,26 +82,89 @@
     return variants.find((variant) => variant && variant.url) || null;
   }
 
-  function buildDownloadFilename({ author, tweetId, kind, index, url, postTitle }) {
+  function resolveFilenameTemplateOptions(input = {}) {
+    return {
+      primaryTemplate: normalizeTemplate(input.primaryTemplate, DEFAULT_FILENAME_TEMPLATES.primaryTemplate),
+      fallbackTemplate: normalizeTemplate(input.fallbackTemplate, DEFAULT_FILENAME_TEMPLATES.fallbackTemplate),
+    };
+  }
+
+  function normalizeTemplate(template, fallback) {
+    const value = String(template || '').trim();
+    return value || fallback;
+  }
+
+  function buildDownloadFilename({ author, tweetId, kind, index, url, postTitle, templates }) {
     const safeAuthor = sanitizeFileComponent(author || 'unknown');
     const safeTweetId = sanitizeFileComponent(tweetId || 'tweet');
     const safeKind = sanitizeFileComponent(kind || 'media');
     const safePostTitle = slugifyPostTitle(postTitle);
     const extension = getExtensionFromUrl(url, kind === 'video' ? 'mp4' : 'jpg');
+    const safeIndex = String(Number(index || 0) + 1);
+    const templateOptions = resolveFilenameTemplateOptions(templates || DEFAULT_FILENAME_TEMPLATES);
+    const tokens = {
+      author: safeAuthor,
+      tweetId: safeTweetId,
+      kind: safeKind,
+      index: safeIndex,
+      ext: extension,
+      postTitle: safePostTitle,
+    };
 
-    if (safePostTitle) {
-      return `x_${safeAuthor}_${safePostTitle}_${safeTweetId}_${safeKind}_${Number(index || 0) + 1}.${extension}`;
+    const primary = applyFilenameTemplate(templateOptions.primaryTemplate, tokens);
+    if (safePostTitle && templateOptions.primaryTemplate.includes('{postTitle}')) {
+      return primary;
     }
 
-    return `x_${safeAuthor}_${safeTweetId}_${safeKind}_${Number(index || 0) + 1}.${extension}`;
+    return applyFilenameTemplate(templateOptions.fallbackTemplate, tokens);
+  }
+
+  function applyFilenameTemplate(template, tokens) {
+    const rendered = String(template || '').replace(/\{(author|tweetId|kind|index|ext|postTitle)\}/g, (_match, token) => tokens[token] || '');
+    return sanitizeRenderedFilename(rendered, tokens.ext);
+  }
+
+  function sanitizeRenderedFilename(value, fallbackExt) {
+    const trimmed = String(value || '')
+      .replace(/\/+/g, '/')
+      .replace(/^\/+|\/+$/g, '')
+      .trim();
+
+    const parts = trimmed.split('/').filter(Boolean).map((part) => sanitizeFilenameSegment(part));
+    const joined = parts.join('/');
+    if (joined) {
+      return joined;
+    }
+
+    return `x-media.${fallbackExt || 'bin'}`;
+  }
+
+  function sanitizeFilenameSegment(value) {
+    const extMatch = String(value).match(/^(.*?)(\.([a-zA-Z0-9]+))?$/);
+    const stem = sanitizePathPart(extMatch?.[1] || value);
+    const ext = extMatch?.[3] ? normalizeExtension(extMatch[3]) : '';
+    return ext ? `${stem}.${ext}` : stem;
+  }
+
+  function sanitizePathPart(value) {
+    return String(value || '')
+      .normalize('NFKC')
+      .replace(/[\\:*?"<>|]+/g, '-')
+      .replace(/\\+/g, '-')
+      .replace(/\s+/g, '_')
+      .replace(/_+/g, '_')
+      .replace(/-+/g, '-')
+      .replace(/^[-_]+|[-_]+$/g, '') || 'x-media';
   }
 
   const api = {
+    DEFAULT_FILENAME_TEMPLATES,
     sanitizeFileComponent,
     slugifyPostTitle,
     getExtensionFromUrl,
     toOriginalImageUrl,
     chooseBestVideoVariant,
+    resolveFilenameTemplateOptions,
     buildDownloadFilename,
   };
 

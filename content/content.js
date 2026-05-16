@@ -7,7 +7,7 @@
     return;
   }
 
-  const { toOriginalImageUrl, buildDownloadFilename } = shared;
+  const { toOriginalImageUrl, buildDownloadFilename, resolveFilenameTemplateOptions } = shared;
   const {
     findTweetArticles,
     extractTweetIdFromArticle,
@@ -20,13 +20,32 @@
   const mediaStore = new Map();
   const downloadingArticles = new WeakSet();
   let observer = null;
+  let mountTimer = null;
+  let settings = resolveFilenameTemplateOptions();
+  let settingsLoadPromise = null;
 
   injectPageScripts();
   bindPageMessages();
   installObserver();
-  mountAllTweets();
+  loadSettings().then(mountAllTweets);
   window.addEventListener('popstate', scheduleMountAll, { passive: true });
   window.addEventListener('load', scheduleMountAll, { passive: true });
+
+  if (chrome.storage?.onChanged?.addListener) {
+    chrome.storage.onChanged.addListener((changes, areaName) => {
+      if (areaName !== 'local') {
+        return;
+      }
+      if (!changes.primaryTemplate && !changes.fallbackTemplate) {
+        return;
+      }
+      settings = resolveFilenameTemplateOptions({
+        primaryTemplate: changes.primaryTemplate?.newValue,
+        fallbackTemplate: changes.fallbackTemplate?.newValue,
+      });
+      scheduleMountAll();
+    });
+  }
 
   function injectPageScripts() {
     if (document.documentElement.dataset.xmdInjected === '1') {
@@ -113,7 +132,29 @@
     });
   }
 
-  let mountTimer = null;
+  async function loadSettings() {
+    if (settingsLoadPromise) {
+      return settingsLoadPromise;
+    }
+
+    settingsLoadPromise = new Promise((resolve) => {
+      if (!chrome.storage?.local?.get) {
+        settings = resolveFilenameTemplateOptions();
+        resolve(settings);
+        return;
+      }
+
+      chrome.storage.local.get(['primaryTemplate', 'fallbackTemplate'], (stored) => {
+        settings = resolveFilenameTemplateOptions(stored || {});
+        resolve(settings);
+      });
+    }).finally(() => {
+      settingsLoadPromise = null;
+    });
+
+    return settingsLoadPromise;
+  }
+
   function scheduleMountAll() {
     if (mountTimer) {
       window.clearTimeout(mountTimer);
@@ -266,15 +307,17 @@
       return;
     }
 
+    downloadingArticles.add(article);
+    await loadSettings();
     const availability = getMediaAvailability(article);
     if (!availability.hasAny) {
+      downloadingArticles.delete(article);
       updateStatus(statusNode, '暂无可下载媒体', false, true);
       return;
     }
 
     const mount = article.querySelector('.xmd-actions');
     const button = mount?.querySelector('[data-xmd-kind="download"]');
-    downloadingArticles.add(article);
     setButtonBusy(button, true, availability);
     updateStatus(statusNode, '正在下载媒体…', true);
 
@@ -310,6 +353,7 @@
         kind: 'image',
         index: image.index ?? index,
         url: image.url,
+        templates: settings,
       });
 
       await sendDownload({
@@ -337,6 +381,7 @@
         kind: 'video',
         index: video.index ?? index,
         url: video.bestUrl,
+        templates: settings,
       });
 
       await sendDownload({
@@ -441,6 +486,7 @@
       getDownloadIconSvg,
       mountTweetActions,
       handleUnifiedDownload,
+      loadSettings,
     });
   }
 })();

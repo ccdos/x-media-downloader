@@ -6,6 +6,7 @@ const {
   chooseBestVideoVariant,
   buildDownloadFilename,
   sanitizeFileComponent,
+  resolveFilenameTemplateOptions,
 } = require('../content/shared.js');
 
 test('toOriginalImageUrl upgrades twimg media URLs to original quality', () => {
@@ -53,7 +54,7 @@ test('buildDownloadFilename generates stable readable names', () => {
     url: 'https://pbs.twimg.com/media/AbCdEf?format=png&name=orig',
   });
 
-  assert.equal(filename, 'x_hello-world_192837465_image_1.png');
+  assert.equal(filename, 'x_192837465_image_1.png');
 });
 
 
@@ -67,7 +68,46 @@ test('buildDownloadFilename prefers sanitized post title when provided', () => {
     postTitle: '把4台 Mac mini 叠起来，用 CAD Skill 做 4 层竖向框架',
   });
 
-  assert.equal(filename, 'x_hello-world_把4台-mac-mini-叠起来-用-cad-skill-做-4-层竖向框架_192837465_video_2.mp4');
+  assert.equal(filename, 'x_把4台-mac-mini-叠起来-用-cad-skill-做-4-层竖向框架_192837465_video_2.mp4');
+});
+
+
+test('resolveFilenameTemplateOptions defaults to templates without author', () => {
+  assert.deepEqual(resolveFilenameTemplateOptions(), {
+    primaryTemplate: 'x_{postTitle}_{tweetId}_{kind}_{index}.{ext}',
+    fallbackTemplate: 'x_{tweetId}_{kind}_{index}.{ext}',
+  });
+});
+
+test('buildDownloadFilename applies custom primary and fallback templates', () => {
+  const primaryFilename = buildDownloadFilename({
+    author: 'hello/world',
+    tweetId: '192837465',
+    kind: 'video',
+    index: 1,
+    url: 'https://video.twimg.com/tweet/demo.mp4',
+    postTitle: '把4台 Mac mini 叠起来，用 CAD Skill 做 4 层竖向框架',
+    templates: {
+      primaryTemplate: 'x_{author}_{postTitle}_{tweetId}_{kind}_{index}.{ext}',
+      fallbackTemplate: 'x_{author}_{tweetId}_{kind}_{index}.{ext}',
+    },
+  });
+
+  const fallbackFilename = buildDownloadFilename({
+    author: 'hello/world',
+    tweetId: '192837465',
+    kind: 'video',
+    index: 1,
+    url: 'https://video.twimg.com/tweet/demo.mp4',
+    postTitle: '',
+    templates: {
+      primaryTemplate: 'x_{author}_{postTitle}_{tweetId}_{kind}_{index}.{ext}',
+      fallbackTemplate: 'x_{author}_{tweetId}_{kind}_{index}.{ext}',
+    },
+  });
+
+  assert.equal(primaryFilename, 'x_hello-world_把4台-mac-mini-叠起来-用-cad-skill-做-4-层竖向框架_192837465_video_2.mp4');
+  assert.equal(fallbackFilename, 'x_hello-world_192837465_video_2.mp4');
 });
 
 test('sanitizeFileComponent strips invalid filename characters', () => {
