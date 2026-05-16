@@ -11,12 +11,15 @@ X Media Downloader is designed to download media that is already visible to the 
 - Stores filename template settings locally with the Chrome storage API.
 
 ## Data collection and storage
-X Media Downloader does not operate a backend service and does not transmit user data to the developer.
+X Media Downloader does not operate a backend service and does not transmit user data to the developer. It does not collect, store, or transmit user data outside the browser, and all media-download logic runs locally.
 
 The extension processes the following data locally inside the browser:
 - Visible post text, only to generate optional filename titles.
 - Media URLs exposed by the page, only to download the selected media.
+- X.com or Twitter GraphQL response data, only to locate media URLs that belong to the current post.
 - User-defined filename template preferences, stored locally in Chrome storage.
+
+The extension intercepts X.com or Twitter GraphQL responses only to obtain media URLs for the current post. It does not read, store, or transmit any other data from those responses.
 
 The extension does not:
 - Sell user data.

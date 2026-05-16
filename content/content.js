@@ -70,7 +70,7 @@
 
   function bindPageMessages() {
     window.addEventListener('message', (event) => {
-      if (event.source !== window) {
+      if (event.source !== window || !isAllowedPageMessageOrigin(event.origin)) {
         return;
       }
 
@@ -98,6 +98,14 @@
         scheduleMountAll();
       }
     });
+  }
+
+  function isAllowedPageMessageOrigin(origin) {
+    if (!origin) {
+      return true;
+    }
+
+    return origin === 'https://x.com' || origin === 'https://twitter.com';
   }
 
   function installObserver() {

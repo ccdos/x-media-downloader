@@ -49,6 +49,8 @@ Use these prepared assets in the dashboard:
 ## Privacy notes to keep consistent
 Use wording consistent with the privacy policy:
 - The extension processes visible post text locally to generate filenames.
+- The extension intercepts X.com or Twitter GraphQL responses only to locate media URLs for the current post.
+- The extension does not read, store, or transmit any other data from those GraphQL responses.
 - The extension processes media URLs exposed by the current post in order to download selected media.
 - Filename template preferences are stored locally using Chrome storage.
 - The extension does not sell user data.

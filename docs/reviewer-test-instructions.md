@@ -25,6 +25,15 @@ X Media Downloader adds a download button to X / Twitter posts that contain down
    - Expected: the page documents the available template fields and their meanings.
    - Expected: clicking Save stores changes; clicking Reset to defaults restores the default templates.
 
+## Data handling disclosure
+- The extension injects a page hook that intercepts X.com or Twitter GraphQL responses only to locate media URLs for the current post.
+- The extension does not read, store, or transmit any other data from those GraphQL responses.
+- The extension does not send user data to the developer; all download logic runs locally in the browser.
+
+## Responsible-use disclosure
+- The extension is intended for personal use on media the user is already permitted to access.
+- Users remain responsible for complying with the X / Twitter Terms of Service and any applicable copyright or privacy rules.
+
 ## Default filename behavior
 - Primary template: x_{postTitle}_{kind}_{index}.{ext}
 - Fallback template: x_{kind}_{index}.{ext}

@@ -28,13 +28,15 @@
           <li>Stores filename template settings locally with the Chrome storage API.</li>
         </ul>
         <h2>Data collection and storage</h2>
-        <p>X Media Downloader does not operate a backend service and does not transmit user data to the developer.</p>
+        <p>X Media Downloader does not operate a backend service and does not transmit user data to the developer. It does not collect, store, or transmit user data outside the browser, and all media-download logic runs locally.</p>
         <p>The extension processes the following data locally inside the browser:</p>
         <ul>
           <li>Visible post text, only to generate optional filename titles.</li>
           <li>Media URLs exposed by the page, only to download the selected media.</li>
+          <li>X.com or Twitter GraphQL response data, only to locate media URLs that belong to the current post.</li>
           <li>User-defined filename template preferences, stored locally in Chrome storage.</li>
         </ul>
+        <p>The extension intercepts X.com or Twitter GraphQL responses only to obtain media URLs for the current post. It does not read, store, or transmit any other data from those responses.</p>
         <p>The extension does not:</p>
         <ul>
           <li>Sell user data.</li>

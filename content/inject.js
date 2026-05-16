@@ -82,7 +82,13 @@
       source: 'x-media-downloader',
       type: 'XMD_MEDIA_META',
       payload: { entries },
-    }, '*');
+    }, getMessageTargetOrigin());
+  }
+
+  function getMessageTargetOrigin() {
+    return window.location?.origin === 'https://twitter.com'
+      ? 'https://twitter.com'
+      : 'https://x.com';
   }
 
   function shouldInspect(url, response) {
