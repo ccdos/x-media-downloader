@@ -387,6 +387,39 @@ test('createButton builds a single icon-style unified download control', () => {
   assert.match(button.innerHTML, /svg/i);
 });
 
+
+
+test('mountTweetActions does not show a button when no image or video is available', async () => {
+  const dom = new JSDOM('<!doctype html><html><body><article></article></body></html>', { url: 'https://x.com/demo/status/1' });
+  const article = dom.window.document.querySelector('article');
+  const mount = dom.window.document.createElement('div');
+  mount.className = 'xmd-actions xmd-actions--header';
+  article.appendChild(mount);
+
+  const api = loadContentTestApi({
+    window: dom.window,
+    document: dom.window.document,
+    MutationObserver: class {
+      observe() {}
+      disconnect() {}
+    },
+    chrome: { runtime: { getURL: () => '', sendMessage: () => {}, lastError: null } },
+    xmdDomUtils: {
+      findTweetArticles: () => [article],
+      extractTweetIdFromArticle: () => '1',
+      extractAuthorFromArticle: () => 'demo_user',
+      ensureButtonMount: () => mount,
+      collectDomImages: () => [],
+    },
+  });
+
+  await api.loadSettings();
+  api.mountTweetActions(article);
+
+  assert.equal(mount.childElementCount, 0);
+  assert.equal(mount.querySelector('[data-xmd-kind="download"]'), null);
+});
+
 test('mountTweetActions ignores a second click while a download is already in flight', async () => {
   const dom = new JSDOM('<!doctype html><html><body><article></article></body></html>', { url: 'https://x.com/demo/status/1' });
   const article = dom.window.document.querySelector('article');

@@ -205,8 +205,15 @@
       return;
     }
 
+    const availability = getMediaAvailability(article);
     const mount = ensureButtonMount(article);
     if (!mount) {
+      return;
+    }
+
+    if (!availability.hasAny) {
+      mount.replaceChildren();
+      delete article.dataset.xmdMounted;
       return;
     }
 
