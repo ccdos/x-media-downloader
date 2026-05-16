@@ -277,8 +277,8 @@ test('downloadImages falls back to default template without author when tweet te
 
   const filenames = [];
   const storageValues = {
-    primaryTemplate: 'x_{postTitle}_{tweetId}_{kind}_{index}.{ext}',
-    fallbackTemplate: 'x_{tweetId}_{kind}_{index}.{ext}',
+    primaryTemplate: 'x_{postTitle}_{kind}_{index}.{ext}',
+    fallbackTemplate: 'x_{kind}_{index}.{ext}',
   };
 
   const api = loadContentTestApi({
@@ -319,7 +319,7 @@ test('downloadImages falls back to default template without author when tweet te
   button.dispatchEvent(new dom.window.MouseEvent('click', { bubbles: true, cancelable: true }));
   await new Promise((resolve) => setTimeout(resolve, 0));
 
-  assert.equal(filenames[0], 'x_1_image_1.jpg');
+  assert.equal(filenames[0], 'x_image_1.jpg');
 });
 
 test('downloadImages uses normalized tweet text in generated filenames', async () => {
@@ -363,7 +363,7 @@ test('downloadImages uses normalized tweet text in generated filenames', async (
   await new Promise((resolve) => setTimeout(resolve, 0));
 
   assert.equal(filenames.length, 1);
-  assert.equal(filenames[0], 'x_把4台-mac-mini-叠起来-用-cad-skill-做-4-层竖向框架_1_image_1.jpg');
+  assert.equal(filenames[0], 'x_把4台-mac-mini-叠起来-用-cad-skill-做-4-层竖向框架_image_1.jpg');
 });
 
 test('createButton builds a single icon-style unified download control', () => {

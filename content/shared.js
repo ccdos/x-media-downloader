@@ -1,8 +1,8 @@
 (function initShared(globalScope) {
   const TWIMG_MEDIA_HOST = 'pbs.twimg.com';
   const DEFAULT_FILENAME_TEMPLATES = Object.freeze({
-    primaryTemplate: 'x_{postTitle}_{tweetId}_{kind}_{index}.{ext}',
-    fallbackTemplate: 'x_{tweetId}_{kind}_{index}.{ext}',
+    primaryTemplate: 'x_{postTitle}_{kind}_{index}.{ext}',
+    fallbackTemplate: 'x_{kind}_{index}.{ext}',
   });
 
   function sanitizeFileComponent(value) {

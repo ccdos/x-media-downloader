@@ -9,7 +9,7 @@
   <body>
     <main class="page">
       <h1>X Media Downloader 文件名设置</h1>
-      <p class="intro">自定义下载文件名模板。默认不包含 {author}，只有你主动写进模板时才会带作者名。</p>
+      <p class="intro">自定义下载文件名模板。默认不包含 {author} 和 {tweetId}，只有你主动写进模板时才会带上这些字段。</p>
 
       <form id="settings-form" class="panel">
         <label class="field">
@@ -34,8 +34,8 @@
       <section class="panel help">
         <h2>默认模板</h2>
         <ul>
-          <li>优先：x_{postTitle}_{tweetId}_{kind}_{index}.{ext}</li>
-          <li>回退：x_{tweetId}_{kind}_{index}.{ext}</li>
+          <li>优先：x_{postTitle}_{kind}_{index}.{ext}</li>
+          <li>回退：x_{kind}_{index}.{ext}</li>
         </ul>
 
         <h2>可用字段</h2>

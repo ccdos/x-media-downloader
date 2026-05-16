@@ -54,7 +54,7 @@ test('buildDownloadFilename generates stable readable names', () => {
     url: 'https://pbs.twimg.com/media/AbCdEf?format=png&name=orig',
   });
 
-  assert.equal(filename, 'x_192837465_image_1.png');
+  assert.equal(filename, 'x_image_1.png');
 });
 
 
@@ -68,14 +68,14 @@ test('buildDownloadFilename prefers sanitized post title when provided', () => {
     postTitle: '把4台 Mac mini 叠起来，用 CAD Skill 做 4 层竖向框架',
   });
 
-  assert.equal(filename, 'x_把4台-mac-mini-叠起来-用-cad-skill-做-4-层竖向框架_192837465_video_2.mp4');
+  assert.equal(filename, 'x_把4台-mac-mini-叠起来-用-cad-skill-做-4-层竖向框架_video_2.mp4');
 });
 
 
 test('resolveFilenameTemplateOptions defaults to templates without author', () => {
   assert.deepEqual(resolveFilenameTemplateOptions(), {
-    primaryTemplate: 'x_{postTitle}_{tweetId}_{kind}_{index}.{ext}',
-    fallbackTemplate: 'x_{tweetId}_{kind}_{index}.{ext}',
+    primaryTemplate: 'x_{postTitle}_{kind}_{index}.{ext}',
+    fallbackTemplate: 'x_{kind}_{index}.{ext}',
   });
 });
 
