@@ -33,7 +33,7 @@
     chrome.storage.local.set(values, () => {
       primaryInput.value = values.primaryTemplate;
       fallbackInput.value = values.fallbackTemplate;
-      flash('已保存');
+      flash('Saved');
     });
   }
 
@@ -41,7 +41,7 @@
     chrome.storage.local.set({ ...DEFAULT_FILENAME_TEMPLATES }, () => {
       primaryInput.value = DEFAULT_FILENAME_TEMPLATES.primaryTemplate;
       fallbackInput.value = DEFAULT_FILENAME_TEMPLATES.fallbackTemplate;
-      flash('已恢复默认');
+      flash('Defaults restored');
     });
   }
 

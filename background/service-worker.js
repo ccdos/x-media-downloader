@@ -14,7 +14,7 @@ async function handleDownload(payload = {}) {
   const { url, filename, saveAs = false } = payload;
 
   if (!url || typeof url !== 'string' || !/^https?:\/\//i.test(url)) {
-    throw new Error('无效的下载地址');
+    throw new Error('Invalid download URL');
   }
 
   const downloadId = await chrome.downloads.download({

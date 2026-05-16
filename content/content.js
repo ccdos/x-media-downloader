@@ -266,32 +266,32 @@
     button.dataset.hasImage = availability.hasImage ? '1' : '0';
 
     if (!button.dataset.busy || button.dataset.busy === '0') {
-      const label = availability.hasAny ? buildAriaLabel(availability) : '暂无可下载媒体';
+      const label = availability.hasAny ? buildAriaLabel(availability) : 'No downloadable media found';
       button.setAttribute('aria-label', label);
       button.setAttribute('title', label);
     }
 
     if (status && !status.dataset.busy) {
       if (availability.hasVideo && availability.hasImage) {
-        status.textContent = '图片和视频已就绪';
+        status.textContent = 'Images and videos ready';
       } else if (availability.hasVideo) {
-        status.textContent = '视频已就绪';
+        status.textContent = 'Video ready';
       } else if (availability.hasImage) {
-        status.textContent = '图片已就绪';
+        status.textContent = 'Images ready';
       } else {
-        status.textContent = '等待媒体';
+        status.textContent = 'Waiting for media';
       }
     }
   }
 
   function buildAriaLabel(availability) {
     if (availability.hasVideo && availability.hasImage) {
-      return `下载媒体（${availability.imageCount} 张图片，${availability.videoCount} 个视频）`;
+      return `Download media (${availability.imageCount} images, ${availability.videoCount} videos)`;
     }
     if (availability.hasVideo) {
-      return `下载视频（${availability.videoCount} 个）`;
+      return `Download video (${availability.videoCount})`;
     }
-    return `下载图片（${availability.imageCount} 张）`;
+    return `Download images (${availability.imageCount})`;
   }
 
   function createButton(kind = 'download') {
@@ -299,8 +299,8 @@
     button.type = 'button';
     button.className = 'xmd-btn xmd-btn--icon';
     button.dataset.xmdKind = kind;
-    button.setAttribute('aria-label', '下载媒体');
-    button.setAttribute('title', '下载媒体');
+    button.setAttribute('aria-label', 'Download media');
+    button.setAttribute('title', 'Download media');
     button.innerHTML = getDownloadIconSvg();
     return button;
   }
@@ -319,14 +319,14 @@
     const availability = getMediaAvailability(article);
     if (!availability.hasAny) {
       downloadingArticles.delete(article);
-      updateStatus(statusNode, '暂无可下载媒体', false, true);
+      updateStatus(statusNode, 'No downloadable media found', false, true);
       return;
     }
 
     const mount = article.querySelector('.xmd-actions');
     const button = mount?.querySelector('[data-xmd-kind="download"]');
     setButtonBusy(button, true, availability);
-    updateStatus(statusNode, '正在下载媒体…', true);
+    updateStatus(statusNode, 'Downloading media…', true);
 
     try {
       let total = 0;
@@ -337,9 +337,9 @@
         total += await downloadVideos(article, availability.videos);
       }
 
-      updateStatus(statusNode, `已开始下载 ${total} 个媒体文件`, false);
+      updateStatus(statusNode, `Started downloading ${total} media files`, false);
     } catch (error) {
-      updateStatus(statusNode, `媒体下载失败：${error.message || error}`, false, true);
+      updateStatus(statusNode, `Media download failed: ${error.message || error}`, false, true);
     } finally {
       downloadingArticles.delete(article);
       setButtonBusy(button, false, availability);
@@ -435,7 +435,7 @@
 
     button.dataset.busy = busy ? '1' : '0';
     button.disabled = busy || !availability?.hasAny;
-    const label = busy ? '正在下载媒体' : (availability?.hasAny ? buildAriaLabel(availability) : '暂无可下载媒体');
+    const label = busy ? 'Downloading media' : (availability?.hasAny ? buildAriaLabel(availability) : 'No downloadable media found');
     button.setAttribute('aria-label', label);
     button.setAttribute('title', label);
   }
@@ -450,7 +450,7 @@
         }
 
         if (!response?.ok) {
-          reject(new Error(response?.error || '下载失败'));
+          reject(new Error(response?.error || 'Download failed'));
           return;
         }
 

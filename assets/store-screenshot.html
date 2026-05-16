@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>X Media Downloader Store Screenshot</title>
+    <style>
+      :root {
+        --bg1: #0f172a;
+        --bg2: #111827;
+        --panel: rgba(15, 23, 42, 0.78);
+        --border: rgba(148, 163, 184, 0.22);
+        --text: #e2e8f0;
+        --muted: #94a3b8;
+        --accent: #38bdf8;
+        --accent2: #22c55e;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        width: 1280px;
+        height: 800px;
+        overflow: hidden;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: radial-gradient(circle at top left, #1d4ed8 0%, rgba(29,78,216,0) 38%), linear-gradient(135deg, var(--bg1), var(--bg2));
+        color: var(--text);
+      }
+      .frame { padding: 44px; width: 100%; height: 100%; }
+      .hero {
+        display: grid;
+        grid-template-columns: 1.05fr .95fr;
+        gap: 28px;
+        height: 100%;
+      }
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 28px;
+        box-shadow: 0 28px 80px rgba(2,6,23,.35);
+        backdrop-filter: blur(12px);
+      }
+      .left { padding: 34px; display:flex; flex-direction:column; }
+      .eyebrow { color:#7dd3fc; text-transform: uppercase; letter-spacing: .18em; font-size: 14px; margin-bottom: 16px; }
+      h1 { font-size: 54px; line-height: 1.02; margin: 0 0 18px; }
+      .subtitle { font-size: 21px; color: #cbd5e1; max-width: 90%; }
+      .features { display:grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 26px; }
+      .feature { padding: 16px 18px; border-radius: 18px; background: rgba(15,23,42,.45); border: 1px solid rgba(148,163,184,.16); }
+      .feature strong { display:block; font-size: 16px; margin-bottom: 6px; }
+      .feature span { color: var(--muted); font-size: 14px; }
+      .footer-note { margin-top: auto; color: var(--muted); font-size: 14px; }
+      .right { padding: 26px; display:flex; flex-direction:column; justify-content:center; }
+      .mock {
+        position: relative;
+        border-radius: 24px;
+        overflow: hidden;
+        border: 1px solid rgba(148,163,184,.18);
+        background: linear-gradient(180deg, rgba(30,41,59,.92), rgba(15,23,42,.92));
+      }
+      .toolbar { display:flex; align-items:center; gap:10px; padding:16px 18px; border-bottom:1px solid rgba(148,163,184,.14); }
+      .dot { width:10px; height:10px; border-radius:50%; background:#475569; }
+      .search { flex:1; height:36px; border-radius:999px; background: rgba(51,65,85,.76); }
+      .post { padding: 22px 24px 20px; }
+      .author { display:flex; align-items:center; gap:14px; }
+      .avatar { width:44px; height:44px; border-radius:50%; background: linear-gradient(135deg, var(--accent), var(--accent2)); }
+      .name { font-size:17px; font-weight:700; }
+      .meta { color:var(--muted); font-size:14px; margin-top:4px; }
+      .text { margin: 18px 0 16px; font-size: 20px; line-height: 1.4; }
+      .media { display:grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+      .thumb { height: 180px; border-radius: 18px; background: linear-gradient(135deg, rgba(56,189,248,.22), rgba(34,197,94,.18)); border: 1px solid rgba(125,211,252,.2); position: relative; }
+      .thumb::after { content:''; position:absolute; inset:18px; border-radius:14px; border:1px dashed rgba(226,232,240,.18); }
+      .actions { display:flex; justify-content:space-between; align-items:center; margin-top: 18px; color: var(--muted); }
+      .download {
+        display:inline-flex; align-items:center; gap:10px; padding:10px 14px; border-radius:999px;
+        color:#082f49; font-weight:700; background: linear-gradient(135deg, #7dd3fc, #4ade80);
+        box-shadow: 0 10px 28px rgba(34,197,94,.22);
+      }
+      .mini { display:flex; gap: 10px; align-items:center; }
+      .mini .icon { width: 26px; height: 26px; border-radius: 50%; background: rgba(148,163,184,.18); }
+    </style>
+  </head>
+  <body>
+    <div class="frame">
+      <div class="hero">
+        <section class="card left">
+          <div class="eyebrow">Chrome extension</div>
+          <h1>Download images and videos directly from X posts.</h1>
+          <div class="subtitle">A compact one-click button appears only when a post actually contains downloadable media.</div>
+          <div class="features">
+            <div class="feature"><strong>One-click downloads</strong><span>Download every image and video available in the current post.</span></div>
+            <div class="feature"><strong>Smart visibility</strong><span>The button stays hidden on posts that have no media.</span></div>
+            <div class="feature"><strong>Readable filenames</strong><span>Use post text to generate cleaner filenames by default.</span></div>
+            <div class="feature"><strong>Custom templates</strong><span>Configure filename fields in the built-in options page.</span></div>
+          </div>
+          <div class="footer-note">Works on x.com and twitter.com • Manifest V3 • Privacy-friendly defaults</div>
+        </section>
+        <section class="card right">
+          <div class="mock">
+            <div class="toolbar"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="search"></div></div>
+            <div class="post">
+              <div class="author">
+                <div class="avatar"></div>
+                <div>
+                  <div class="name">demo_creator</div>
+                  <div class="meta">@demo_creator · 5m</div>
+                </div>
+              </div>
+              <div class="text">Stack 4 Mac mini units vertically using CAD Skill to design a compact 4-level frame.</div>
+              <div class="media"><div class="thumb"></div><div class="thumb"></div></div>
+              <div class="actions">
+                <div class="mini"><div class="icon"></div><div class="icon"></div><div class="icon"></div></div>
+                <div class="download">↓ Download media</div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </body>
+</html>

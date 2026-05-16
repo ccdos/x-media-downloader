@@ -171,7 +171,7 @@
       return getDirectChildContaining(container, grokAnchor) || grokAnchor;
     }
 
-    const caretAnchor = container.querySelector('[data-testid="caret"], button[aria-label*="More"], [role="button"][aria-label*="More"], button[aria-label*="更多"], [role="button"][aria-label*="更多"]');
+    const caretAnchor = container.querySelector('[data-testid="caret"], button[aria-label*="More"], [role="button"][aria-label*="More"]');
     const caretChild = caretAnchor ? (getDirectChildContaining(container, caretAnchor) || caretAnchor) : null;
 
     if (caretChild) {
@@ -195,7 +195,7 @@
     if (/grok/i.test(ariaLabel)) score += 20;
     if (/grok/i.test(href)) score += 14;
     if (dataTestId === 'caret') score += 10;
-    if (/more|更多/i.test(text)) score += 6;
+    if (/more/i.test(text)) score += 6;
     if (/grok/i.test(text)) score += 5;
     if (element.tagName === 'BUTTON') score += 2;
     return score;

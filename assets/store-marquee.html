@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <style>
+      body { margin:0; width:1400px; height:560px; overflow:hidden; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; background:radial-gradient(circle at 15% 20%, rgba(56,189,248,.25), transparent 32%), radial-gradient(circle at 80% 10%, rgba(34,197,94,.2), transparent 28%), linear-gradient(135deg,#020617,#0f172a 60%,#172554); color:#e2e8f0; }
+      .wrap { display:grid; grid-template-columns:1.05fr .95fr; gap:36px; height:100%; padding:46px 56px; box-sizing:border-box; }
+      h1 { margin:0 0 14px; font-size:72px; line-height:.98; }
+      p { margin:0; font-size:24px; color:#cbd5e1; max-width:760px; }
+      .left { display:flex; flex-direction:column; justify-content:center; }
+      .meta { margin-top:28px; display:flex; gap:14px; flex-wrap:wrap; }
+      .pill { border:1px solid rgba(125,211,252,.26); color:#7dd3fc; padding:10px 14px; border-radius:999px; font-size:16px; }
+      .panel { background:rgba(15,23,42,.72); border:1px solid rgba(148,163,184,.16); border-radius:28px; padding:24px; display:flex; flex-direction:column; justify-content:center; box-shadow:0 28px 80px rgba(2,6,23,.35); }
+      .row { display:flex; justify-content:space-between; align-items:center; padding:16px 18px; border-radius:18px; background:rgba(30,41,59,.68); margin:10px 0; }
+      .strong { font-size:18px; font-weight:700; }
+      .muted { color:#94a3b8; }
+      .cta { margin-top:18px; display:inline-flex; align-items:center; gap:10px; width:max-content; padding:12px 18px; border-radius:999px; color:#082f49; font-weight:800; background:linear-gradient(135deg,#7dd3fc,#4ade80); }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="left">
+        <h1>X Media Downloader</h1>
+        <p>Download images and videos directly from X / Twitter posts with a compact button that only appears when media exists.</p>
+        <div class="meta"><div class="pill">One-click downloads</div><div class="pill">Readable filenames</div><div class="pill">Custom templates</div></div>
+      </div>
+      <div class="panel">
+        <div class="row"><div><div class="strong">Media-aware button</div><div class="muted">Hidden on posts with no media</div></div><div>✓</div></div>
+        <div class="row"><div><div class="strong">Filename options</div><div class="muted">Primary and fallback templates</div></div><div>✓</div></div>
+        <div class="row"><div><div class="strong">Privacy-friendly defaults</div><div class="muted">No author or tweet ID unless you opt in</div></div><div>✓</div></div>
+        <div class="cta">↓ Download media</div>
+      </div>
+    </div>
+  </body>
+</html>

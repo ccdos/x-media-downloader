@@ -65,10 +65,10 @@ test('buildDownloadFilename prefers sanitized post title when provided', () => {
     kind: 'video',
     index: 1,
     url: 'https://video.twimg.com/tweet/demo.mp4',
-    postTitle: '把4台 Mac mini 叠起来，用 CAD Skill 做 4 层竖向框架',
+    postTitle: 'Stack 4 Mac mini units vertically using CAD Skill to design a 4-level frame',
   });
 
-  assert.equal(filename, 'x_把4台-mac-mini-叠起来-用-cad-skill-做-4-层竖向框架_video_2.mp4');
+  assert.equal(filename, 'x_stack-4-mac-mini-units-vertically-using-cad-skill-to-design-a-4-level-frame_video_2.mp4');
 });
 
 
@@ -86,7 +86,7 @@ test('buildDownloadFilename applies custom primary and fallback templates', () =
     kind: 'video',
     index: 1,
     url: 'https://video.twimg.com/tweet/demo.mp4',
-    postTitle: '把4台 Mac mini 叠起来，用 CAD Skill 做 4 层竖向框架',
+    postTitle: 'Stack 4 Mac mini units vertically using CAD Skill to design a 4-level frame',
     templates: {
       primaryTemplate: 'x_{author}_{postTitle}_{tweetId}_{kind}_{index}.{ext}',
       fallbackTemplate: 'x_{author}_{tweetId}_{kind}_{index}.{ext}',
@@ -106,7 +106,7 @@ test('buildDownloadFilename applies custom primary and fallback templates', () =
     },
   });
 
-  assert.equal(primaryFilename, 'x_hello-world_把4台-mac-mini-叠起来-用-cad-skill-做-4-层竖向框架_192837465_video_2.mp4');
+  assert.equal(primaryFilename, 'x_hello-world_stack-4-mac-mini-units-vertically-using-cad-skill-to-design-a-4-level-frame_192837465_video_2.mp4');
   assert.equal(fallbackFilename, 'x_hello-world_192837465_video_2.mp4');
 });
 

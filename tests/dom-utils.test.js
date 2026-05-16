@@ -87,7 +87,7 @@ test('findHeaderActionBar prefers real-world top action wrapper around caret/gro
               </div>
             </div>
           </div>
-          <div data-testid="tweetText">正文</div>
+          <div data-testid="tweetText">Post body</div>
           <div role="group" class="tweet-footer-actions">
             <button type="button" data-testid="reply">reply</button>
             <button type="button" data-testid="retweet">retweet</button>
@@ -151,7 +151,7 @@ test('ensureButtonMount still inserts before visual grok sibling when grok icon 
             <div data-testid="User-Name">demo_user</div>
             <div class="top-actions" data-testid="xmd-top-actions">
               <div class="action-wrap subscribe-wrap">
-                <button type="button" aria-label="订阅">订阅</button>
+                <button type="button" aria-label="Subscribe">Subscribe</button>
               </div>
               <div class="action-wrap grok-wrap">
                 <button type="button"><svg class="grok-mark"></svg></button>
@@ -184,7 +184,7 @@ test('ensureButtonMount prefers the real Grok button container over the adjacent
     <article>
       <div class="outer">
         <div class="css-175oi2r r-18u37iz r-1h0z5md grok-parent">
-          <button aria-label="Grok 操作" role="button" type="button"></button>
+          <button aria-label="Grok action" role="button" type="button"></button>
         </div>
         <div class="css-175oi2r r-1awozwy r-6koalj r-18u37iz right-cluster">
           <div class="css-175oi2r left-slot"></div>
@@ -258,13 +258,13 @@ test('extractTweetTextFromArticle returns normalized tweet text for filename gen
   const dom = new JSDOM(`
     <article>
       <div data-testid="tweetText">
-        把4台 Mac mini 叠起来，<a href="https://x.com">链接</a><span>用 CAD Skill 做 4 层竖向框架</span>
+        Stack 4 Mac mini units vertically, <a href="https://x.com">link</a><span>using CAD Skill to design a 4-level frame</span>
       </div>
     </article>
   `, { url: 'https://x.com/demo/status/1' });
 
   const article = dom.window.document.querySelector('article');
-  assert.equal(extractTweetTextFromArticle(article), '把4台 Mac mini 叠起来，链接用 CAD Skill 做 4 层竖向框架');
+  assert.equal(extractTweetTextFromArticle(article), 'Stack 4 Mac mini units vertically, linkusing CAD Skill to design a 4-level frame');
 });
 
 
@@ -323,7 +323,7 @@ test('downloadImages falls back to default template without author when tweet te
 });
 
 test('downloadImages uses normalized tweet text in generated filenames', async () => {
-  const dom = new JSDOM('<!doctype html><html><body><article><div data-testid="tweetText">把4台 Mac mini 叠起来，用 CAD Skill 做 4 层竖向框架</div></article></body></html>', { url: 'https://x.com/demo/status/1' });
+  const dom = new JSDOM('<!doctype html><html><body><article><div data-testid="tweetText">Stack 4 Mac mini units vertically using CAD Skill to design a 4-level frame</div></article></body></html>', { url: 'https://x.com/demo/status/1' });
   const article = dom.window.document.querySelector('article');
   const mount = dom.window.document.createElement('div');
   mount.className = 'xmd-actions xmd-actions--header';
@@ -363,7 +363,7 @@ test('downloadImages uses normalized tweet text in generated filenames', async (
   await new Promise((resolve) => setTimeout(resolve, 0));
 
   assert.equal(filenames.length, 1);
-  assert.equal(filenames[0], 'x_把4台-mac-mini-叠起来-用-cad-skill-做-4-层竖向框架_image_1.jpg');
+  assert.equal(filenames[0], 'x_stack-4-mac-mini-units-vertically-using-cad-skill-to-design-a-4-level-frame_image_1.jpg');
 });
 
 test('createButton builds a single icon-style unified download control', () => {
@@ -383,7 +383,7 @@ test('createButton builds a single icon-style unified download control', () => {
 
   assert.equal(button.className, 'xmd-btn xmd-btn--icon');
   assert.equal(button.dataset.xmdKind, 'download');
-  assert.equal(button.getAttribute('aria-label'), '下载媒体');
+  assert.equal(button.getAttribute('aria-label'), 'Download media');
   assert.match(button.innerHTML, /svg/i);
 });
 
