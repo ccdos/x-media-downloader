@@ -7,7 +7,7 @@
     return;
   }
 
-  const { toOriginalImageUrl, buildDownloadFilename, resolveFilenameTemplateOptions } = shared;
+  const { toOriginalImageUrl, buildDownloadFilename, resolveFilenameTemplateOptions, resolveDownloadOptions, applyDownloadSubdirectory } = shared;
   const {
     findTweetArticles,
     extractTweetIdFromArticle,
@@ -21,7 +21,10 @@
   const downloadingArticles = new WeakSet();
   let observer = null;
   let mountTimer = null;
-  let settings = resolveFilenameTemplateOptions();
+  let settings = {
+    ...resolveFilenameTemplateOptions(),
+    ...resolveDownloadOptions(),
+  };
   let settingsLoadPromise = null;
 
   injectPageScripts();
@@ -36,13 +39,18 @@
       if (areaName !== 'local') {
         return;
       }
-      if (!changes.primaryTemplate && !changes.fallbackTemplate) {
+      if (!changes.primaryTemplate && !changes.fallbackTemplate && !changes.downloadSubdirectory) {
         return;
       }
-      settings = resolveFilenameTemplateOptions({
-        primaryTemplate: changes.primaryTemplate?.newValue,
-        fallbackTemplate: changes.fallbackTemplate?.newValue,
-      });
+      settings = {
+        ...resolveFilenameTemplateOptions({
+          primaryTemplate: changes.primaryTemplate?.newValue,
+          fallbackTemplate: changes.fallbackTemplate?.newValue,
+        }),
+        ...resolveDownloadOptions({
+          downloadSubdirectory: changes.downloadSubdirectory?.newValue,
+        }),
+      };
       scheduleMountAll();
     });
   }
@@ -147,13 +155,19 @@
 
     settingsLoadPromise = new Promise((resolve) => {
       if (!chrome.storage?.local?.get) {
-        settings = resolveFilenameTemplateOptions();
+        settings = {
+          ...resolveFilenameTemplateOptions(),
+          ...resolveDownloadOptions(),
+        };
         resolve(settings);
         return;
       }
 
-      chrome.storage.local.get(['primaryTemplate', 'fallbackTemplate'], (stored) => {
-        settings = resolveFilenameTemplateOptions(stored || {});
+      chrome.storage.local.get(['primaryTemplate', 'fallbackTemplate', 'downloadSubdirectory'], (stored) => {
+        settings = {
+          ...resolveFilenameTemplateOptions(stored || {}),
+          ...resolveDownloadOptions(stored || {}),
+        };
         resolve(settings);
       });
     }).finally(() => {
@@ -361,7 +375,7 @@
     const postTitle = extractTweetTextFromArticle(article);
 
     for (const [index, image] of images.entries()) {
-      const filename = buildDownloadFilename({
+      const filename = applyDownloadSubdirectory(buildDownloadFilename({
         author,
         postTitle,
         tweetId: tweetId || 'tweet',
@@ -369,7 +383,7 @@
         index: image.index ?? index,
         url: image.url,
         templates: settings,
-      });
+      }), settings.downloadSubdirectory);
 
       await sendDownload({
         mediaType: 'image',
@@ -389,7 +403,7 @@
     const postTitle = extractTweetTextFromArticle(article);
 
     for (const [index, video] of videos.entries()) {
-      const filename = buildDownloadFilename({
+      const filename = applyDownloadSubdirectory(buildDownloadFilename({
         author,
         postTitle,
         tweetId: tweetId || 'tweet',
@@ -397,7 +411,7 @@
         index: video.index ?? index,
         url: video.bestUrl,
         templates: settings,
-      });
+      }), settings.downloadSubdirectory);
 
       await sendDownload({
         mediaType: 'video',

@@ -4,10 +4,11 @@
     return;
   }
 
-  const { DEFAULT_FILENAME_TEMPLATES, resolveFilenameTemplateOptions } = shared;
+  const { DEFAULT_FILENAME_TEMPLATES, DEFAULT_DOWNLOAD_OPTIONS, resolveFilenameTemplateOptions, resolveDownloadOptions } = shared;
   const form = document.getElementById('settings-form');
   const primaryInput = document.getElementById('primaryTemplate');
   const fallbackInput = document.getElementById('fallbackTemplate');
+  const downloadSubdirectoryInput = document.getElementById('downloadSubdirectory');
   const resetButton = document.getElementById('resetButton');
   const status = document.getElementById('status');
 
@@ -16,31 +17,45 @@
   resetButton.addEventListener('click', onReset);
 
   function load() {
-    chrome.storage.local.get(['primaryTemplate', 'fallbackTemplate'], (stored) => {
-      const values = resolveFilenameTemplateOptions(stored || {});
+    chrome.storage.local.get(['primaryTemplate', 'fallbackTemplate', 'downloadSubdirectory'], (stored) => {
+      const values = {
+        ...resolveFilenameTemplateOptions(stored || {}),
+        ...resolveDownloadOptions(stored || {}),
+      };
       primaryInput.value = values.primaryTemplate;
       fallbackInput.value = values.fallbackTemplate;
+      downloadSubdirectoryInput.value = values.downloadSubdirectory;
     });
   }
 
   function onSubmit(event) {
     event.preventDefault();
-    const values = resolveFilenameTemplateOptions({
-      primaryTemplate: primaryInput.value,
-      fallbackTemplate: fallbackInput.value,
-    });
+    const values = {
+      ...resolveFilenameTemplateOptions({
+        primaryTemplate: primaryInput.value,
+        fallbackTemplate: fallbackInput.value,
+      }),
+      ...resolveDownloadOptions({
+        downloadSubdirectory: downloadSubdirectoryInput.value,
+      }),
+    };
 
     chrome.storage.local.set(values, () => {
       primaryInput.value = values.primaryTemplate;
       fallbackInput.value = values.fallbackTemplate;
+      downloadSubdirectoryInput.value = values.downloadSubdirectory;
       flash('Saved');
     });
   }
 
   function onReset() {
-    chrome.storage.local.set({ ...DEFAULT_FILENAME_TEMPLATES }, () => {
+    chrome.storage.local.set({
+      ...DEFAULT_FILENAME_TEMPLATES,
+      ...DEFAULT_DOWNLOAD_OPTIONS,
+    }, () => {
       primaryInput.value = DEFAULT_FILENAME_TEMPLATES.primaryTemplate;
       fallbackInput.value = DEFAULT_FILENAME_TEMPLATES.fallbackTemplate;
+      downloadSubdirectoryInput.value = DEFAULT_DOWNLOAD_OPTIONS.downloadSubdirectory;
       flash('Defaults restored');
     });
   }

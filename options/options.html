@@ -8,10 +8,16 @@
   </head>
   <body>
     <main class="page">
-      <h1>X Media Downloader Filename Settings</h1>
-      <p class="intro">Customize download filename templates. By default, filenames do not include {author} or {tweetId}; those fields only appear when you add them to your template.</p>
+      <h1>X Media Downloader Settings</h1>
+      <p class="intro">Customize download filename templates and an optional Downloads subfolder. By default, filenames do not include {author} or {tweetId}; those fields only appear when you add them to your template.</p>
 
       <form id="settings-form" class="panel">
+        <label class="field">
+          <span>Downloads subfolder (optional)</span>
+          <input id="downloadSubdirectory" name="downloadSubdirectory" type="text" spellcheck="false" placeholder="favorites/2026">
+          <small>Saved files stay inside your browser Downloads folder. You can set a relative subfolder such as favorites/2026, but Chrome extensions cannot write to an arbitrary absolute path.</small>
+        </label>
+
         <label class="field">
           <span>Primary template</span>
           <input id="primaryTemplate" name="primaryTemplate" type="text" spellcheck="false">
@@ -32,9 +38,10 @@
       </form>
 
       <section class="panel help">
-        <h2>Default templates</h2>
+        <h2>Default settings</h2>
         <ul>
-          <li>Primary: x_{postTitle}_{kind}_{index}.{ext}</li>
+          <li>Downloads subfolder: (empty)</li>
+          <li>Primary template: x_{postTitle}_{kind}_{index}.{ext}</li>
           <li>Fallback: x_{kind}_{index}.{ext}</li>
         </ul>
 
@@ -55,6 +62,7 @@
 
         <h2>Notes</h2>
         <ul>
+          <li>The Downloads subfolder is relative to your browser Downloads folder. Chrome blocks absolute paths and backtracking such as .. in extension-initiated downloads.</li>
           <li>You can mix plain text with fields, for example: downloads/{tweetId}_{kind}_{index}.{ext}</li>
           <li>If the primary template contains {postTitle} but the current post does not expose usable text, the extension automatically falls back to the fallback template.</li>
           <li>Unsupported filename characters in the rendered template are sanitized automatically.</li>

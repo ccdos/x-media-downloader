@@ -366,6 +366,61 @@ test('downloadImages uses normalized tweet text in generated filenames', async (
   assert.equal(filenames[0], 'x_stack-4-mac-mini-units-vertically-using-cad-skill-to-design-a-4-level-frame_image_1.jpg');
 });
 
+test('downloadImages prefixes generated filenames with the saved download subdirectory', async () => {
+  const dom = new JSDOM('<!doctype html><html><body><article></article></body></html>', { url: 'https://x.com/demo/status/1' });
+  const article = dom.window.document.querySelector('article');
+  const mount = dom.window.document.createElement('div');
+  mount.className = 'xmd-actions xmd-actions--header';
+  article.appendChild(mount);
+
+  const filenames = [];
+  const storageValues = {
+    primaryTemplate: 'x_{postTitle}_{kind}_{index}.{ext}',
+    fallbackTemplate: 'x_{kind}_{index}.{ext}',
+    downloadSubdirectory: 'favorites/2026',
+  };
+
+  const api = loadContentTestApi({
+    window: dom.window,
+    document: dom.window.document,
+    MutationObserver: class {
+      observe() {}
+      disconnect() {}
+    },
+    chrome: {
+      runtime: {
+        getURL: () => '',
+        lastError: null,
+        sendMessage: (message, callback) => {
+          filenames.push(message.payload.filename);
+          callback({ ok: true });
+        },
+      },
+      storage: {
+        local: {
+          get: (_keys, callback) => callback(storageValues),
+        },
+      },
+    },
+    xmdDomUtils: {
+      findTweetArticles: () => [article],
+      extractTweetIdFromArticle: () => '1',
+      extractAuthorFromArticle: () => 'demo_user',
+      extractTweetTextFromArticle: () => '',
+      ensureButtonMount: () => mount,
+      collectDomImages: () => [{ rawUrl: 'https://pbs.twimg.com/media/demo?format=jpg&name=small' }],
+    },
+  });
+
+  await api.loadSettings();
+  api.mountTweetActions(article);
+  const button = mount.querySelector('[data-xmd-kind="download"]');
+  button.dispatchEvent(new dom.window.MouseEvent('click', { bubbles: true, cancelable: true }));
+  await new Promise((resolve) => setTimeout(resolve, 0));
+
+  assert.equal(filenames[0], 'favorites/2026/x_image_1.jpg');
+});
+
 test('createButton builds a single icon-style unified download control', () => {
   const dom = new JSDOM('<!doctype html><html><body></body></html>', { url: 'https://x.com/home' });
 

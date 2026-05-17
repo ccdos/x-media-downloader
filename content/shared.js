@@ -4,6 +4,9 @@
     primaryTemplate: 'x_{postTitle}_{kind}_{index}.{ext}',
     fallbackTemplate: 'x_{kind}_{index}.{ext}',
   });
+  const DEFAULT_DOWNLOAD_OPTIONS = Object.freeze({
+    downloadSubdirectory: '',
+  });
 
   function sanitizeFileComponent(value) {
     return String(value || 'unknown')
@@ -89,9 +92,35 @@
     };
   }
 
+  function resolveDownloadOptions(input = {}) {
+    return {
+      downloadSubdirectory: normalizeDownloadSubdirectory(
+        input.downloadSubdirectory,
+        DEFAULT_DOWNLOAD_OPTIONS.downloadSubdirectory
+      ),
+    };
+  }
+
   function normalizeTemplate(template, fallback) {
     const value = String(template || '').trim();
     return value || fallback;
+  }
+
+  function normalizeDownloadSubdirectory(value, fallback = '') {
+    const raw = String(value || '').trim();
+    if (!raw) {
+      return fallback;
+    }
+
+    const parts = raw
+      .replace(/\\+/g, '/')
+      .split('/')
+      .map((part) => String(part || '').trim())
+      .filter(Boolean)
+      .filter((part) => part !== '.' && part !== '..')
+      .map((part) => sanitizePathPart(part));
+
+    return parts.join('/');
   }
 
   function buildDownloadFilename({ author, tweetId, kind, index, url, postTitle, templates }) {
@@ -122,6 +151,15 @@
   function applyFilenameTemplate(template, tokens) {
     const rendered = String(template || '').replace(/\{(author|tweetId|kind|index|ext|postTitle)\}/g, (_match, token) => tokens[token] || '');
     return sanitizeRenderedFilename(rendered, tokens.ext);
+  }
+
+  function applyDownloadSubdirectory(filename, downloadSubdirectory) {
+    const normalizedSubdirectory = normalizeDownloadSubdirectory(downloadSubdirectory, '');
+    const normalizedFilename = sanitizeRenderedFilename(filename, 'bin');
+    if (!normalizedSubdirectory) {
+      return normalizedFilename;
+    }
+    return `${normalizedSubdirectory}/${normalizedFilename}`;
   }
 
   function sanitizeRenderedFilename(value, fallbackExt) {
@@ -159,13 +197,16 @@
 
   const api = {
     DEFAULT_FILENAME_TEMPLATES,
+    DEFAULT_DOWNLOAD_OPTIONS,
     sanitizeFileComponent,
     slugifyPostTitle,
     getExtensionFromUrl,
     toOriginalImageUrl,
     chooseBestVideoVariant,
     resolveFilenameTemplateOptions,
+    resolveDownloadOptions,
     buildDownloadFilename,
+    applyDownloadSubdirectory,
   };
 
   globalScope.XMDShared = api;

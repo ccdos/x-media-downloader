@@ -7,6 +7,8 @@ const {
   buildDownloadFilename,
   sanitizeFileComponent,
   resolveFilenameTemplateOptions,
+  resolveDownloadOptions,
+  applyDownloadSubdirectory,
 } = require('../content/shared.js');
 
 test('toOriginalImageUrl upgrades twimg media URLs to original quality', () => {
@@ -77,6 +79,34 @@ test('resolveFilenameTemplateOptions defaults to templates without author', () =
     primaryTemplate: 'x_{postTitle}_{kind}_{index}.{ext}',
     fallbackTemplate: 'x_{kind}_{index}.{ext}',
   });
+});
+
+test('resolveDownloadOptions defaults to no subdirectory', () => {
+  assert.deepEqual(resolveDownloadOptions(), {
+    downloadSubdirectory: '',
+  });
+});
+
+test('resolveDownloadOptions trims and sanitizes the download subdirectory', () => {
+  assert.deepEqual(resolveDownloadOptions({
+    downloadSubdirectory: '  favorites\\2026/../clips  ',
+  }), {
+    downloadSubdirectory: 'favorites/2026/clips',
+  });
+});
+
+test('applyDownloadSubdirectory prefixes the filename with the saved subdirectory', () => {
+  assert.equal(
+    applyDownloadSubdirectory('x_image_1.png', 'favorites/2026'),
+    'favorites/2026/x_image_1.png'
+  );
+});
+
+test('applyDownloadSubdirectory keeps nested filename templates under the saved subdirectory', () => {
+  assert.equal(
+    applyDownloadSubdirectory('downloads/123_image_1.png', 'favorites'),
+    'favorites/downloads/123_image_1.png'
+  );
 });
 
 test('buildDownloadFilename applies custom primary and fallback templates', () => {
