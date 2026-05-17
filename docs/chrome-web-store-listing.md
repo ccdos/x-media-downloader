@@ -14,7 +14,7 @@ Features:
 - Supports both images and videos.
 - Hides the button when a post has no media.
 - Generates readable filenames from visible post text.
-- Lets you customize filename templates in the extension options page.
+- Lets you customize filename templates and an optional Downloads subfolder in the extension options page.
 - Defaults to privacy-friendly filenames that do not include author handles or tweet IDs unless you opt in.
 - Processes media metadata locally and does not transmit user data to the developer.
 
@@ -22,7 +22,8 @@ How it works:
 - The extension detects supported posts on X / Twitter.
 - It adds a single download button in the top-right action area of posts that contain media.
 - Clicking the button downloads all media files currently available for that post.
-- To locate media URLs reliably, the extension intercepts X.com or Twitter GraphQL responses and extracts only the media URLs needed for the current post.
+- The extension intercepts X.com or Twitter GraphQL responses only to obtain media URLs for the current post. It does not read, store, or transmit any other data from those responses.
+- Downloads are saved locally with the Chrome Downloads API inside the browser Downloads folder; users may optionally set a relative subfolder such as favorites/2026.
 
 Notes:
 - Video downloads prefer the highest bitrate MP4 variant when available.

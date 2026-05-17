@@ -25,7 +25,7 @@
           <li>Detects posts that contain downloadable images or videos.</li>
           <li>Adds a download button to supported posts.</li>
           <li>Generates filenames locally from post text and extension settings.</li>
-          <li>Stores filename template settings locally with the Chrome storage API.</li>
+          <li>Stores filename template settings and an optional download subdirectory locally with the Chrome storage API.</li>
         </ul>
         <h2>Data collection and storage</h2>
         <p>X Media Downloader does not operate a backend service and does not transmit user data to the developer. It does not collect, store, or transmit user data outside the browser, and all media-download logic runs locally.</p>
@@ -33,8 +33,8 @@
         <ul>
           <li>Visible post text, only to generate optional filename titles.</li>
           <li>Media URLs exposed by the page, only to download the selected media.</li>
-          <li>X.com or Twitter GraphQL response data, only to locate media URLs that belong to the current post.</li>
-          <li>User-defined filename template preferences, stored locally in Chrome storage.</li>
+          <li>X.com or Twitter GraphQL response data, only to locate media URLs for the current post.</li>
+          <li>User-defined filename template preferences and the optional download subdirectory, stored locally in Chrome storage.</li>
         </ul>
         <p>The extension intercepts X.com or Twitter GraphQL responses only to obtain media URLs for the current post. It does not read, store, or transmit any other data from those responses.</p>
         <p>The extension does not:</p>
@@ -46,11 +46,13 @@
         </ul>
         <h2>Permissions explained</h2>
         <ul>
-          <li><code>downloads</code>: saves selected media files to the user's device.</li>
-          <li><code>storage</code>: stores filename template preferences locally.</li>
+          <li><code>downloads</code>: saves selected media files to the user's device inside the browser Downloads folder or one of its subfolders.</li>
+          <li><code>storage</code>: stores filename template preferences and the optional download subdirectory locally.</li>
           <li><code>x.com / twitter.com</code>: detects supported posts and inserts the download button.</li>
           <li><code>*.twimg.com / video.twimg.com</code>: accesses original image and video files that belong to the current post.</li>
         </ul>
+        <h2>Responsible use</h2>
+        <p>The extension is intended for personal use on media the user is already permitted to access. Users are responsible for complying with the X / Twitter Terms of Service and applicable laws.</p>
         <h2>Contact</h2>
         <p>For support or privacy questions, open an issue in the GitHub repository: <a href="https://www.ccdos.cn/x-media-downloader/support.html">https://www.ccdos.cn/x-media-downloader/support.html</a></p>
       </div>

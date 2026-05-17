@@ -5,18 +5,16 @@ A minimal Chrome Manifest V3 extension that inserts a single media download butt
 Architecture:
 - The content script watches the page, finds posts, and mounts the download button.
 - An injected page hook intercepts the page's own GraphQL/XHR responses and extracts tweet media metadata.
-- The background service worker calls the Downloads API to start downloads.
+- The background service worker calls the Downloads API to start downloads inside the browser Downloads folder.
 
 Privacy and data handling:
 - This extension does not collect, store, or transmit user data to the developer. All processing happens locally in the browser.
-- The extension intercepts X.com or Twitter GraphQL responses only to obtain media URLs that already belong to the current post.
-- The extension does not read, store, or transmit any other data from those responses.
-- Filename template preferences are stored locally in Chrome storage.
+- The extension intercepts X.com or Twitter GraphQL responses only to obtain media URLs for the current post. It does not read, store, or transmit any other data from those responses.
+- Filename template preferences and the optional download subdirectory are stored locally in Chrome storage.
 
 Implementation disclosure:
-- To make downloads reliable on X / Twitter, the extension injects a page hook that intercepts X.com and Twitter GraphQL/XHR responses.
-- The hook extracts only post media URLs and passes them back to the content script for local download handling.
-- It does not send the intercepted response data to any external service.
+- The extension intercepts X.com or Twitter GraphQL responses only to obtain media URLs for the current post. It does not read, store, or transmit any other data from those responses.
+- The resulting download requests are started locally with the Chrome Downloads API.
 
 Project structure:
 - manifest.json
@@ -43,11 +41,10 @@ Usage:
 2. After the page finishes loading, a single download button appears in the top-right action area of posts that contain media.
 3. Click the button once to download all available media from the current post (images and/or videos).
 4. Filenames prefer a short title derived from post text and do not include {author} or {tweetId} by default. When no usable post text is available, filenames fall back to kind + index.
-5. Open Extension options from the extension details page to customize the primary and fallback filename templates and review the available template fields.
+5. Open Extension options from the extension details page to customize the optional Downloads subfolder, primary filename template, fallback filename template, and the available template fields.
 
 Responsible use:
-- This extension is intended for personal use on media that the user is already allowed to view on X / Twitter.
-- Users are responsible for complying with the X / Twitter Terms of Service and any applicable copyright, privacy, or platform rules.
+- The extension is intended for personal use on media the user is already permitted to access. Users are responsible for complying with the X / Twitter Terms of Service and applicable laws.
 
 Tests:
 - Run from the project directory: npm test
@@ -58,6 +55,6 @@ Current limitations:
 - If restricted media metadata is not actually returned by the page, the extension will not fake a download.
 
 Suggested next steps:
-- Add popup/options controls for saveAs, filename templates, and quality preferences.
+- Add popup/options controls for saveAs, quality preferences, and maybe per-download confirmation.
 - Add dedicated handling for quoted-post and repost media.
 - Make action bar detection even more resilient.
