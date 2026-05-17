@@ -378,6 +378,7 @@ test('downloadImages prefixes generated filenames with the saved download subdir
     primaryTemplate: 'x_{postTitle}_{kind}_{index}.{ext}',
     fallbackTemplate: 'x_{kind}_{index}.{ext}',
     downloadSubdirectory: 'favorites/2026',
+    downloadMode: 'subdirectory',
   };
 
   const api = loadContentTestApi({
@@ -419,6 +420,64 @@ test('downloadImages prefixes generated filenames with the saved download subdir
   await new Promise((resolve) => setTimeout(resolve, 0));
 
   assert.equal(filenames[0], 'favorites/2026/x_image_1.jpg');
+});
+
+test('downloadImages uses saveAs and skips the saved subdirectory when download mode is ask', async () => {
+  const dom = new JSDOM('<!doctype html><html><body><article></article></body></html>', { url: 'https://x.com/demo/status/1' });
+  const article = dom.window.document.querySelector('article');
+  const mount = dom.window.document.createElement('div');
+  mount.className = 'xmd-actions xmd-actions--header';
+  article.appendChild(mount);
+
+  const payloads = [];
+  const storageValues = {
+    primaryTemplate: 'x_{postTitle}_{kind}_{index}.{ext}',
+    fallbackTemplate: 'x_{kind}_{index}.{ext}',
+    downloadSubdirectory: 'favorites/2026',
+    downloadMode: 'ask',
+  };
+
+  const api = loadContentTestApi({
+    window: dom.window,
+    document: dom.window.document,
+    MutationObserver: class {
+      observe() {}
+      disconnect() {}
+    },
+    chrome: {
+      runtime: {
+        getURL: () => '',
+        lastError: null,
+        sendMessage: (message, callback) => {
+          payloads.push(message.payload);
+          callback({ ok: true });
+        },
+      },
+      storage: {
+        local: {
+          get: (_keys, callback) => callback(storageValues),
+        },
+      },
+    },
+    xmdDomUtils: {
+      findTweetArticles: () => [article],
+      extractTweetIdFromArticle: () => '1',
+      extractAuthorFromArticle: () => 'demo_user',
+      extractTweetTextFromArticle: () => '',
+      ensureButtonMount: () => mount,
+      collectDomImages: () => [{ rawUrl: 'https://pbs.twimg.com/media/demo?format=jpg&name=small' }],
+    },
+  });
+
+  await api.loadSettings();
+  api.mountTweetActions(article);
+  const button = mount.querySelector('[data-xmd-kind="download"]');
+  button.dispatchEvent(new dom.window.MouseEvent('click', { bubbles: true, cancelable: true }));
+  await new Promise((resolve) => setTimeout(resolve, 0));
+
+  assert.equal(payloads.length, 1);
+  assert.equal(payloads[0].filename, 'x_image_1.jpg');
+  assert.equal(payloads[0].saveAs, true);
 });
 
 test('createButton builds a single icon-style unified download control', () => {

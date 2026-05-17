@@ -10,7 +10,7 @@ Architecture:
 Privacy and data handling:
 - This extension does not collect, store, or transmit user data to the developer. All processing happens locally in the browser.
 - The extension intercepts X.com or Twitter GraphQL responses only to obtain media URLs for the current post. It does not read, store, or transmit any other data from those responses.
-- Filename template preferences and the optional download subdirectory are stored locally in Chrome storage.
+- Filename template preferences, download behavior, and the optional download subdirectory are stored locally in Chrome storage.
 
 Implementation disclosure:
 - The extension intercepts X.com or Twitter GraphQL responses only to obtain media URLs for the current post. It does not read, store, or transmit any other data from those responses.
@@ -41,7 +41,8 @@ Usage:
 2. After the page finishes loading, a single download button appears in the top-right action area of posts that contain media.
 3. Click the button once to download all available media from the current post (images and/or videos).
 4. Filenames prefer a short title derived from post text and do not include {author} or {tweetId} by default. When no usable post text is available, filenames fall back to kind + index.
-5. Open Extension options from the extension details page to customize the optional Downloads subfolder, primary filename template, fallback filename template, and the available template fields.
+5. Open Extension options from the extension details page to customize download behavior, the optional Downloads subfolder, primary filename template, fallback filename template, and the available template fields.
+6. Choose Use saved Downloads subfolder for one-click downloads into a fixed Downloads subfolder, or switch to Always ask where to save when you want Chrome to prompt for every file.
 
 Responsible use:
 - The extension is intended for personal use on media the user is already permitted to access. Users are responsible for complying with the X / Twitter Terms of Service and applicable laws.
@@ -55,6 +56,6 @@ Current limitations:
 - If restricted media metadata is not actually returned by the page, the extension will not fake a download.
 
 Suggested next steps:
-- Add popup/options controls for saveAs, quality preferences, and maybe per-download confirmation.
+- Add popup/options controls for quality preferences and maybe per-download confirmation.
 - Add dedicated handling for quoted-post and repost media.
 - Make action bar detection even more resilient.

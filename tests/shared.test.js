@@ -9,6 +9,7 @@ const {
   resolveFilenameTemplateOptions,
   resolveDownloadOptions,
   applyDownloadSubdirectory,
+  shouldUseDownloadSubdirectory,
 } = require('../content/shared.js');
 
 test('toOriginalImageUrl upgrades twimg media URLs to original quality', () => {
@@ -84,6 +85,7 @@ test('resolveFilenameTemplateOptions defaults to templates without author', () =
 test('resolveDownloadOptions defaults to no subdirectory', () => {
   assert.deepEqual(resolveDownloadOptions(), {
     downloadSubdirectory: '',
+    downloadMode: 'subdirectory',
   });
 });
 
@@ -92,7 +94,23 @@ test('resolveDownloadOptions trims and sanitizes the download subdirectory', () 
     downloadSubdirectory: '  favorites\\2026/../clips  ',
   }), {
     downloadSubdirectory: 'favorites/2026/clips',
+    downloadMode: 'subdirectory',
   });
+});
+
+test('resolveDownloadOptions accepts ask mode and preserves the sanitized subdirectory value', () => {
+  assert.deepEqual(resolveDownloadOptions({
+    downloadMode: 'ask',
+    downloadSubdirectory: ' favorites/2026 ',
+  }), {
+    downloadSubdirectory: 'favorites/2026',
+    downloadMode: 'ask',
+  });
+});
+
+test('shouldUseDownloadSubdirectory is disabled in ask mode', () => {
+  assert.equal(shouldUseDownloadSubdirectory({ downloadMode: 'ask', downloadSubdirectory: 'favorites' }), false);
+  assert.equal(shouldUseDownloadSubdirectory({ downloadMode: 'subdirectory', downloadSubdirectory: 'favorites' }), true);
 });
 
 test('applyDownloadSubdirectory prefixes the filename with the saved subdirectory', () => {

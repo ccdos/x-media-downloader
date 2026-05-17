@@ -6,6 +6,7 @@
 
   const { DEFAULT_FILENAME_TEMPLATES, DEFAULT_DOWNLOAD_OPTIONS, resolveFilenameTemplateOptions, resolveDownloadOptions } = shared;
   const form = document.getElementById('settings-form');
+  const downloadModeInputs = Array.from(document.querySelectorAll('input[name="downloadMode"]'));
   const primaryInput = document.getElementById('primaryTemplate');
   const fallbackInput = document.getElementById('fallbackTemplate');
   const downloadSubdirectoryInput = document.getElementById('downloadSubdirectory');
@@ -17,7 +18,7 @@
   resetButton.addEventListener('click', onReset);
 
   function load() {
-    chrome.storage.local.get(['primaryTemplate', 'fallbackTemplate', 'downloadSubdirectory'], (stored) => {
+    chrome.storage.local.get(['primaryTemplate', 'fallbackTemplate', 'downloadSubdirectory', 'downloadMode'], (stored) => {
       const values = {
         ...resolveFilenameTemplateOptions(stored || {}),
         ...resolveDownloadOptions(stored || {}),
@@ -25,6 +26,7 @@
       primaryInput.value = values.primaryTemplate;
       fallbackInput.value = values.fallbackTemplate;
       downloadSubdirectoryInput.value = values.downloadSubdirectory;
+      setDownloadMode(values.downloadMode);
     });
   }
 
@@ -37,6 +39,7 @@
       }),
       ...resolveDownloadOptions({
         downloadSubdirectory: downloadSubdirectoryInput.value,
+        downloadMode: getSelectedDownloadMode(),
       }),
     };
 
@@ -44,6 +47,7 @@
       primaryInput.value = values.primaryTemplate;
       fallbackInput.value = values.fallbackTemplate;
       downloadSubdirectoryInput.value = values.downloadSubdirectory;
+      setDownloadMode(values.downloadMode);
       flash('Saved');
     });
   }
@@ -56,7 +60,19 @@
       primaryInput.value = DEFAULT_FILENAME_TEMPLATES.primaryTemplate;
       fallbackInput.value = DEFAULT_FILENAME_TEMPLATES.fallbackTemplate;
       downloadSubdirectoryInput.value = DEFAULT_DOWNLOAD_OPTIONS.downloadSubdirectory;
+      setDownloadMode(DEFAULT_DOWNLOAD_OPTIONS.downloadMode);
       flash('Defaults restored');
+    });
+  }
+
+  function getSelectedDownloadMode() {
+    return downloadModeInputs.find((input) => input.checked)?.value || DEFAULT_DOWNLOAD_OPTIONS.downloadMode;
+  }
+
+  function setDownloadMode(value) {
+    const resolved = value === 'ask' ? 'ask' : DEFAULT_DOWNLOAD_OPTIONS.downloadMode;
+    downloadModeInputs.forEach((input) => {
+      input.checked = input.value === resolved;
     });
   }
 

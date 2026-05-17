@@ -6,6 +6,7 @@
   });
   const DEFAULT_DOWNLOAD_OPTIONS = Object.freeze({
     downloadSubdirectory: '',
+    downloadMode: 'subdirectory',
   });
 
   function sanitizeFileComponent(value) {
@@ -98,12 +99,17 @@
         input.downloadSubdirectory,
         DEFAULT_DOWNLOAD_OPTIONS.downloadSubdirectory
       ),
+      downloadMode: normalizeDownloadMode(input.downloadMode, DEFAULT_DOWNLOAD_OPTIONS.downloadMode),
     };
   }
 
   function normalizeTemplate(template, fallback) {
     const value = String(template || '').trim();
     return value || fallback;
+  }
+
+  function normalizeDownloadMode(value, fallback = 'subdirectory') {
+    return value === 'ask' ? 'ask' : fallback;
   }
 
   function normalizeDownloadSubdirectory(value, fallback = '') {
@@ -162,6 +168,11 @@
     return `${normalizedSubdirectory}/${normalizedFilename}`;
   }
 
+  function shouldUseDownloadSubdirectory(options = {}) {
+    const normalized = resolveDownloadOptions(options);
+    return normalized.downloadMode === 'subdirectory' && Boolean(normalized.downloadSubdirectory);
+  }
+
   function sanitizeRenderedFilename(value, fallbackExt) {
     const trimmed = String(value || '')
       .replace(/\/+/g, '/')
@@ -207,6 +218,7 @@
     resolveDownloadOptions,
     buildDownloadFilename,
     applyDownloadSubdirectory,
+    shouldUseDownloadSubdirectory,
   };
 
   globalScope.XMDShared = api;

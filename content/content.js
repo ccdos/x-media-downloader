@@ -7,7 +7,7 @@
     return;
   }
 
-  const { toOriginalImageUrl, buildDownloadFilename, resolveFilenameTemplateOptions, resolveDownloadOptions, applyDownloadSubdirectory } = shared;
+  const { toOriginalImageUrl, buildDownloadFilename, resolveFilenameTemplateOptions, resolveDownloadOptions, applyDownloadSubdirectory, shouldUseDownloadSubdirectory } = shared;
   const {
     findTweetArticles,
     extractTweetIdFromArticle,
@@ -39,7 +39,7 @@
       if (areaName !== 'local') {
         return;
       }
-      if (!changes.primaryTemplate && !changes.fallbackTemplate && !changes.downloadSubdirectory) {
+      if (!changes.primaryTemplate && !changes.fallbackTemplate && !changes.downloadSubdirectory && !changes.downloadMode) {
         return;
       }
       settings = {
@@ -49,6 +49,7 @@
         }),
         ...resolveDownloadOptions({
           downloadSubdirectory: changes.downloadSubdirectory?.newValue,
+          downloadMode: changes.downloadMode?.newValue,
         }),
       };
       scheduleMountAll();
@@ -163,7 +164,7 @@
         return;
       }
 
-      chrome.storage.local.get(['primaryTemplate', 'fallbackTemplate', 'downloadSubdirectory'], (stored) => {
+      chrome.storage.local.get(['primaryTemplate', 'fallbackTemplate', 'downloadSubdirectory', 'downloadMode'], (stored) => {
         settings = {
           ...resolveFilenameTemplateOptions(stored || {}),
           ...resolveDownloadOptions(stored || {}),
@@ -374,8 +375,10 @@
     const author = extractAuthorFromArticle(article) || mediaStore.get(tweetId)?.author || 'unknown';
     const postTitle = extractTweetTextFromArticle(article);
 
+    const useSavedSubdirectory = shouldUseDownloadSubdirectory(settings);
+
     for (const [index, image] of images.entries()) {
-      const filename = applyDownloadSubdirectory(buildDownloadFilename({
+      const renderedFilename = buildDownloadFilename({
         author,
         postTitle,
         tweetId: tweetId || 'tweet',
@@ -383,14 +386,17 @@
         index: image.index ?? index,
         url: image.url,
         templates: settings,
-      }), settings.downloadSubdirectory);
+      });
+      const filename = useSavedSubdirectory
+        ? applyDownloadSubdirectory(renderedFilename, settings.downloadSubdirectory)
+        : renderedFilename;
 
       await sendDownload({
         mediaType: 'image',
         url: image.url,
         filename,
         tweetId: tweetId || 'tweet',
-        saveAs: false,
+        saveAs: settings.downloadMode === 'ask',
       });
     }
 
@@ -402,8 +408,10 @@
     const author = extractAuthorFromArticle(article) || mediaStore.get(tweetId)?.author || 'unknown';
     const postTitle = extractTweetTextFromArticle(article);
 
+    const useSavedSubdirectory = shouldUseDownloadSubdirectory(settings);
+
     for (const [index, video] of videos.entries()) {
-      const filename = applyDownloadSubdirectory(buildDownloadFilename({
+      const renderedFilename = buildDownloadFilename({
         author,
         postTitle,
         tweetId: tweetId || 'tweet',
@@ -411,14 +419,17 @@
         index: video.index ?? index,
         url: video.bestUrl,
         templates: settings,
-      }), settings.downloadSubdirectory);
+      });
+      const filename = useSavedSubdirectory
+        ? applyDownloadSubdirectory(renderedFilename, settings.downloadSubdirectory)
+        : renderedFilename;
 
       await sendDownload({
         mediaType: 'video',
         url: video.bestUrl,
         filename,
         tweetId: tweetId || 'tweet',
-        saveAs: false,
+        saveAs: settings.downloadMode === 'ask',
       });
     }
 
