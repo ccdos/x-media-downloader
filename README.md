@@ -43,6 +43,7 @@ Usage:
 4. Filenames prefer a short title derived from post text and do not include {author} or {tweetId} by default. When no usable post text is available, filenames fall back to kind + index.
 5. Open Extension options from the extension details page to customize download behavior, the optional Downloads subfolder, primary filename template, fallback filename template, and the available template fields.
 6. Choose Use saved Downloads subfolder for one-click downloads into a fixed Downloads subfolder, or switch to Always ask where to save when you want Chrome to prompt for every file.
+7. If Use saved Downloads subfolder is selected but Chrome still shows a save dialog, disable the browser setting Ask where to save each file before downloading.
 
 Responsible use:
 - The extension is intended for personal use on media the user is already permitted to access. Users are responsible for complying with the X / Twitter Terms of Service and applicable laws.

@@ -21,8 +21,9 @@ X Media Downloader adds a download button to X / Twitter posts that contain down
    - Expected: no download button is shown.
 
 4. Open the extension options page.
-   - Expected: the options page shows an optional Downloads subfolder field plus primary and fallback filename template fields.
+   - Expected: the options page shows download behavior controls, an optional Downloads subfolder field, plus primary and fallback filename template fields.
    - Expected: the page explains that the subfolder stays inside the browser Downloads folder and that Chrome extensions cannot set an arbitrary absolute path.
+   - Expected: the page explains that if Use saved Downloads subfolder is selected but Chrome still shows a save dialog, the browser setting Ask where to save each file before downloading must be disabled.
    - Expected: the page documents the available template fields and their meanings.
    - Expected: clicking Save stores changes; clicking Reset to defaults restores the default settings.
 
