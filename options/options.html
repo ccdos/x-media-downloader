@@ -31,6 +31,14 @@
           <small>Saved files stay inside your browser Downloads folder. You can set a relative subfolder such as favorites/2026, but Chrome extensions cannot write to an arbitrary absolute path.</small>
         </label>
 
+        <label class="field checkbox-field">
+          <span>
+            <input id="debugLogging" name="debugLogging" type="checkbox">
+            Enable debug console logging
+          </span>
+          <small>Print detailed XMD download diagnostics to the page and extension consoles only while this is enabled.</small>
+        </label>
+
         <label class="field">
           <span>Primary template</span>
           <input id="primaryTemplate" name="primaryTemplate" type="text" spellcheck="false">
@@ -55,6 +63,7 @@
         <ul>
           <li>Download behavior: Use saved Downloads subfolder</li>
           <li>Downloads subfolder: (empty)</li>
+          <li>Debug console logging: off</li>
           <li>Primary template: x_{postTitle}_{kind}_{index}.{ext}</li>
           <li>Fallback: x_{kind}_{index}.{ext}</li>
         </ul>

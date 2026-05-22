@@ -10,6 +10,7 @@
   const primaryInput = document.getElementById('primaryTemplate');
   const fallbackInput = document.getElementById('fallbackTemplate');
   const downloadSubdirectoryInput = document.getElementById('downloadSubdirectory');
+  const debugLoggingInput = document.getElementById('debugLogging');
   const resetButton = document.getElementById('resetButton');
   const status = document.getElementById('status');
 
@@ -18,7 +19,7 @@
   resetButton.addEventListener('click', onReset);
 
   function load() {
-    chrome.storage.local.get(['primaryTemplate', 'fallbackTemplate', 'downloadSubdirectory', 'downloadMode'], (stored) => {
+    chrome.storage.local.get(['primaryTemplate', 'fallbackTemplate', 'downloadSubdirectory', 'downloadMode', 'debugLogging'], (stored) => {
       const values = {
         ...resolveFilenameTemplateOptions(stored || {}),
         ...resolveDownloadOptions(stored || {}),
@@ -26,6 +27,7 @@
       primaryInput.value = values.primaryTemplate;
       fallbackInput.value = values.fallbackTemplate;
       downloadSubdirectoryInput.value = values.downloadSubdirectory;
+      debugLoggingInput.checked = values.debugLogging;
       setDownloadMode(values.downloadMode);
     });
   }
@@ -40,6 +42,7 @@
       ...resolveDownloadOptions({
         downloadSubdirectory: downloadSubdirectoryInput.value,
         downloadMode: getSelectedDownloadMode(),
+        debugLogging: debugLoggingInput.checked,
       }),
     };
 
@@ -47,6 +50,7 @@
       primaryInput.value = values.primaryTemplate;
       fallbackInput.value = values.fallbackTemplate;
       downloadSubdirectoryInput.value = values.downloadSubdirectory;
+      debugLoggingInput.checked = values.debugLogging;
       setDownloadMode(values.downloadMode);
       flash('Saved');
     });
@@ -60,6 +64,7 @@
       primaryInput.value = DEFAULT_FILENAME_TEMPLATES.primaryTemplate;
       fallbackInput.value = DEFAULT_FILENAME_TEMPLATES.fallbackTemplate;
       downloadSubdirectoryInput.value = DEFAULT_DOWNLOAD_OPTIONS.downloadSubdirectory;
+      debugLoggingInput.checked = DEFAULT_DOWNLOAD_OPTIONS.debugLogging;
       setDownloadMode(DEFAULT_DOWNLOAD_OPTIONS.downloadMode);
       flash('Defaults restored');
     });
@@ -70,7 +75,7 @@
   }
 
   function setDownloadMode(value) {
-    const resolved = value === 'ask' ? 'ask' : DEFAULT_DOWNLOAD_OPTIONS.downloadMode;
+    const resolved = value === 'ask' || value === 'subdirectory' ? value : DEFAULT_DOWNLOAD_OPTIONS.downloadMode;
     downloadModeInputs.forEach((input) => {
       input.checked = input.value === resolved;
     });

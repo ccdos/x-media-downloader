@@ -54,6 +54,17 @@ h1, h2 {
   font-size: 14px;
 }
 
+.checkbox-field span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.checkbox-field input {
+  width: auto;
+  margin: 0;
+}
+
 .field small,
 .help li,
 .help td,

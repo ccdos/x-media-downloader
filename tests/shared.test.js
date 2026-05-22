@@ -86,6 +86,7 @@ test('resolveDownloadOptions defaults to no subdirectory', () => {
   assert.deepEqual(resolveDownloadOptions(), {
     downloadSubdirectory: '',
     downloadMode: 'subdirectory',
+    debugLogging: false,
   });
 });
 
@@ -95,6 +96,7 @@ test('resolveDownloadOptions trims and sanitizes the download subdirectory', () 
   }), {
     downloadSubdirectory: 'favorites/2026/clips',
     downloadMode: 'subdirectory',
+    debugLogging: false,
   });
 });
 
@@ -105,6 +107,7 @@ test('resolveDownloadOptions accepts ask mode and preserves the sanitized subdir
   }), {
     downloadSubdirectory: 'favorites/2026',
     downloadMode: 'ask',
+    debugLogging: false,
   });
 });
 

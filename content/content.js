@@ -19,6 +19,9 @@
 
   const mediaStore = new Map();
   const downloadingArticles = new WeakSet();
+  const DOWNLOAD_RESPONSE_TIMEOUT_MS = 15000;
+  const LOG_PREFIX = '[XMD]';
+  const PAGE_LOG_EVENT = 'xmd:log';
   let observer = null;
   let mountTimer = null;
   let settings = {
@@ -28,7 +31,11 @@
   let settingsLoadPromise = null;
 
   injectPageScripts();
+  log('info', 'Content script initialized', {
+    url: window.location?.href || '',
+  });
   bindPageMessages();
+  bindRuntimeMessages();
   installObserver();
   loadSettings().then(mountAllTweets);
   window.addEventListener('popstate', scheduleMountAll, { passive: true });
@@ -39,18 +46,19 @@
       if (areaName !== 'local') {
         return;
       }
-      if (!changes.primaryTemplate && !changes.fallbackTemplate && !changes.downloadSubdirectory && !changes.downloadMode) {
+      if (!changes.primaryTemplate && !changes.fallbackTemplate && !changes.downloadSubdirectory && !changes.downloadMode && !changes.debugLogging) {
         return;
       }
+      const nextSettings = {
+        primaryTemplate: changes.primaryTemplate ? changes.primaryTemplate.newValue : settings.primaryTemplate,
+        fallbackTemplate: changes.fallbackTemplate ? changes.fallbackTemplate.newValue : settings.fallbackTemplate,
+        downloadSubdirectory: changes.downloadSubdirectory ? changes.downloadSubdirectory.newValue : settings.downloadSubdirectory,
+        downloadMode: changes.downloadMode ? changes.downloadMode.newValue : settings.downloadMode,
+        debugLogging: changes.debugLogging ? changes.debugLogging.newValue : settings.debugLogging,
+      };
       settings = {
-        ...resolveFilenameTemplateOptions({
-          primaryTemplate: changes.primaryTemplate?.newValue,
-          fallbackTemplate: changes.fallbackTemplate?.newValue,
-        }),
-        ...resolveDownloadOptions({
-          downloadSubdirectory: changes.downloadSubdirectory?.newValue,
-          downloadMode: changes.downloadMode?.newValue,
-        }),
+        ...resolveFilenameTemplateOptions(nextSettings),
+        ...resolveDownloadOptions(nextSettings),
       };
       scheduleMountAll();
     });
@@ -63,6 +71,7 @@
 
     document.documentElement.dataset.xmdInjected = '1';
     const resources = [
+      'content/page-logger.js',
       'content/shared.js',
       'content/media-extractor.js',
       'content/inject.js',
@@ -106,6 +115,23 @@
       if (changed) {
         scheduleMountAll();
       }
+    });
+  }
+
+  function bindRuntimeMessages() {
+    if (!chrome.runtime?.onMessage?.addListener) {
+      return;
+    }
+
+    chrome.runtime.onMessage.addListener((message) => {
+      if (!message || message.type !== 'DOWNLOAD_STATUS') {
+        return false;
+      }
+
+      const payload = message.payload || {};
+      const level = payload.error || payload.phase === 'stalled' ? 'warn' : 'info';
+      log(level, 'Chrome download status', payload);
+      return false;
     });
   }
 
@@ -164,7 +190,7 @@
         return;
       }
 
-      chrome.storage.local.get(['primaryTemplate', 'fallbackTemplate', 'downloadSubdirectory', 'downloadMode'], (stored) => {
+      chrome.storage.local.get(['primaryTemplate', 'fallbackTemplate', 'downloadSubdirectory', 'downloadMode', 'debugLogging'], (stored) => {
         settings = {
           ...resolveFilenameTemplateOptions(stored || {}),
           ...resolveDownloadOptions(stored || {}),
@@ -334,15 +360,24 @@
 
   async function handleUnifiedDownload(article, statusNode) {
     if (downloadingArticles.has(article)) {
+      log('debug', 'Ignoring duplicate download click while request is in flight');
       return;
     }
 
     downloadingArticles.add(article);
     await loadSettings();
     const availability = getMediaAvailability(article);
+    log('info', 'Download click received', {
+      tweetId: availability.tweetId,
+      images: availability.imageCount,
+      videos: availability.videoCount,
+      mode: settings.downloadMode,
+      hasSubdirectory: Boolean(settings.downloadSubdirectory),
+    });
     if (!availability.hasAny) {
       downloadingArticles.delete(article);
       updateStatus(statusNode, 'No downloadable media found', false, true);
+      log('warn', 'Download aborted because no media is available for this article');
       return;
     }
 
@@ -360,9 +395,14 @@
         total += await downloadVideos(article, availability.videos);
       }
 
-      updateStatus(statusNode, `Started downloading ${total} media files`, false);
+      updateStatus(statusNode, `Submitted ${total} media files to Chrome downloads`, false);
+      log('info', 'Download requests submitted to Chrome', {
+        tweetId: availability.tweetId,
+        total,
+      });
     } catch (error) {
       updateStatus(statusNode, `Media download failed: ${error.message || error}`, false, true);
+      log('error', 'Download request failed', serializeError(error));
     } finally {
       downloadingArticles.delete(article);
       setButtonBusy(button, false, availability);
@@ -391,12 +431,19 @@
         ? applyDownloadSubdirectory(renderedFilename, settings.downloadSubdirectory)
         : renderedFilename;
 
+      log('info', 'Requesting image download', {
+        tweetId: tweetId || 'tweet',
+        index: image.index ?? index,
+        filename,
+        saveAs: settings.downloadMode === 'ask',
+      });
       await sendDownload({
         mediaType: 'image',
         url: image.url,
         filename,
         tweetId: tweetId || 'tweet',
         saveAs: settings.downloadMode === 'ask',
+        debugLogging: settings.debugLogging,
       });
     }
 
@@ -424,12 +471,20 @@
         ? applyDownloadSubdirectory(renderedFilename, settings.downloadSubdirectory)
         : renderedFilename;
 
+      log('info', 'Requesting video download', {
+        tweetId: tweetId || 'tweet',
+        index: video.index ?? index,
+        filename,
+        saveAs: settings.downloadMode === 'ask',
+        hasUrl: Boolean(video.bestUrl),
+      });
       await sendDownload({
         mediaType: 'video',
         url: video.bestUrl,
         filename,
         tweetId: tweetId || 'tweet',
         saveAs: settings.downloadMode === 'ask',
+        debugLogging: settings.debugLogging,
       });
     }
 
@@ -475,21 +530,77 @@
 
   function sendDownload(payload) {
     return new Promise((resolve, reject) => {
+      let settled = false;
+      const timeoutId = window.setTimeout(() => {
+        if (settled) {
+          return;
+        }
+        settled = true;
+        reject(new Error(`Background download response timed out after ${DOWNLOAD_RESPONSE_TIMEOUT_MS}ms`));
+      }, DOWNLOAD_RESPONSE_TIMEOUT_MS);
+
       chrome.runtime.sendMessage({ type: 'DOWNLOAD_MEDIA', payload }, (response) => {
+        if (settled) {
+          return;
+        }
+        settled = true;
+        window.clearTimeout(timeoutId);
         const runtimeError = chrome.runtime.lastError;
         if (runtimeError) {
+          log('error', 'Runtime error while sending download message', runtimeError.message);
           reject(new Error(runtimeError.message));
           return;
         }
 
         if (!response?.ok) {
+          log('error', 'Background rejected download message', response?.error || response);
           reject(new Error(response?.error || 'Download failed'));
           return;
         }
 
+        log('info', 'Background accepted download message', {
+          mediaType: payload.mediaType,
+          downloadId: response.downloadId,
+          download: response.download || null,
+        });
         resolve(response);
       });
     });
+  }
+
+  function log(level, message, details) {
+    if (!settings.debugLogging) {
+      return;
+    }
+
+    const method = typeof console[level] === 'function' ? level : 'log';
+    console[method](LOG_PREFIX, message, details ?? '');
+
+    try {
+      if (typeof window.CustomEvent !== 'function') {
+        return;
+      }
+      window.dispatchEvent(new window.CustomEvent(PAGE_LOG_EVENT, {
+        detail: JSON.stringify({
+          level: method,
+          message,
+          details: details ?? null,
+        }),
+      }));
+    } catch (error) {
+      console.warn(LOG_PREFIX, 'Unable to forward log to page context', error);
+    }
+  }
+
+  function serializeError(error) {
+    if (!error || typeof error !== 'object') {
+      return error;
+    }
+    return {
+      name: error.name,
+      message: error.message,
+      stack: error.stack,
+    };
   }
 
   function updateStatus(node, text, busy, isError = false) {

@@ -7,6 +7,7 @@
   const DEFAULT_DOWNLOAD_OPTIONS = Object.freeze({
     downloadSubdirectory: '',
     downloadMode: 'subdirectory',
+    debugLogging: false,
   });
 
   function sanitizeFileComponent(value) {
@@ -100,6 +101,7 @@
         DEFAULT_DOWNLOAD_OPTIONS.downloadSubdirectory
       ),
       downloadMode: normalizeDownloadMode(input.downloadMode, DEFAULT_DOWNLOAD_OPTIONS.downloadMode),
+      debugLogging: input.debugLogging === true,
     };
   }
 
@@ -108,8 +110,11 @@
     return value || fallback;
   }
 
-  function normalizeDownloadMode(value, fallback = 'subdirectory') {
-    return value === 'ask' ? 'ask' : fallback;
+  function normalizeDownloadMode(value, fallback = DEFAULT_DOWNLOAD_OPTIONS.downloadMode) {
+    if (value === 'ask' || value === 'subdirectory') {
+      return value;
+    }
+    return fallback;
   }
 
   function normalizeDownloadSubdirectory(value, fallback = '') {

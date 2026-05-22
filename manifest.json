@@ -37,6 +37,7 @@
   "web_accessible_resources": [
     {
       "resources": [
+        "content/page-logger.js",
         "content/shared.js",
         "content/media-extractor.js",
         "content/inject.js"
